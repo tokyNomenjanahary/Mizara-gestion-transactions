@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion Ariary</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: "#4F46E5", secondary: "#8B5CF6" },
+                    borderRadius: {
+                        none: "0px",
+                        sm: "4px",
+                        DEFAULT: "8px",
+                        md: "12px",
+                        lg: "16px",
+                        xl: "20px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        full: "9999px",
+                        button: "8px",
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" />
+    <style>
+        :where([class^="ri-"])::before {
+            content: "\f3c2";
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            /* font-size: 0.875rem; */
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .transaction-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .scrollBar-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filter-panel {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .filter-panel.active {
+            transform: translateY(0);
+        }
+
+        .transaction-row {
+            transition: all 0.2s ease;
+        }
+
+        .transaction-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .sort-indicator {
+            transition: transform 0.2s ease;
+        }
+
+        .sort-asc {
+            transform: rotate(0deg);
+        }
+
+        .sort-desc {
+            transform: rotate(180deg);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+    <script>
+        const API_BASE = "https://68a470d0c123272fb9b2b59c.mockapi.io/compta/api/v-1";
+        const API_ADD_TRANSACTION = "https://miandrilala.online/crud/save";
+        const API_TRANSACTION = "https://miandrilala.online/api/v1/node/transactions"
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen relative">
+    <!-- <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div> -->
+    <!-- loader -->
+    <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm"
+        style="z-index: 999999;">
+        <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+    <!-- Transaction modal for details -->
+    <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
+            <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">Détails de la transaction</h2>
+                    <button id="closeModalBtn" class="w-8 h-8 flex items-center justify-center">
+                        <i class="ri-close-line text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 space-y-6">
+                <div id="transactionForm" class="space-y-6">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Navbar -->
+    <aside
+        class="w-64 bg-white shadow-lg h-screen fixed left-0 top-0 overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-10">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
+            <button id="closeSidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-close-line"></i>
+                </div>
+            </button>
+        </div>
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary hidden">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-home-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/transaction" class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-bank-card-line"></i>
+                        </div>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/categories"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-swap-line"></i>
+                        </div>
+                        <span>Catégories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/transactions/historique"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-history-line"></i>
+                        </div>
+                        <span>Historiques</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <!-- Main Content -->
+    <main class="pb-4 px-4 flex-1 lg:ml-64">
+        <div class="flex items-center justify-between p-4 lg:hidden bg-white shadow-sm">
+            <button id="openSidebar" class="text-gray-500 hover:text-gray-700">
+                <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-menu-line"></i>
+                </div>
+            </button>
+            <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
+            <div class="w-5"></div>
+        </div>
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-md p-5 mt-4">
+            <!-- Select Secteur d'activité -->
+            <input type="text" id="tr-id" class="hidden">
+            <div class="mb-4">
+                <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
+                    Catégorie
+                </label>
+                <div class="relative">
+                    <select id="sector"
+                        class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
+                        <option value="">Sélectionnez un secteur</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+                <p id="sectorError" class="text-red-500 text-xs mt-2 hidden"></p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Type du transaction
+                </label>
+                <div id="transaction-type" class="ms-2">
+                    <div>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="transaction_type" value="Entrée" checked
+                                class="text-primary focus:ring-primary">
+                            <span>Entrée</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="transaction_type" value="Sortie"
+                                class="text-primary focus:ring-primary">
+                            <span>Sortie</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                    </label>
+                    <input type="text" id="notes"
+                        class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
+                        placeholder="Ajoutez une description" />
+                </div>
+                <p id="notesError" class="text-red-500 text-xs mt-2 hidden"></p>
+            </div>
+
+            <div class="mb-4">
+                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Montant</label>
+                <div class="relative">
+                    <input type="text" id="amount"
+                        class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
+                        placeholder="Entrez le montant" />
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <span class="text-gray-500">Ar</span>
+                    </div>
+                </div>
+                <p id="amounterror" class="text-red-500 text-xs mt-2 hidden"></p>
+            </div>
+            <div class="bg-white rounded-lg py-4">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">QR Code de paiement</label>
+                    <div id="qr-preview" class="hidden">
+                        <button type="button" id="remove-qr" class="text-red-500 text-sm flex items-center">
+                            <i class="ri-delete-bin-line mr-1"></i>Supprimer
+                        </button>
+                    </div>
+                </div>
+                <!-- upload-qr -->
+                <div id="qr-upload-container" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <div id="qr-placeholder" class="space-y-2">
+                        <div class="w-12 h-12 mx-auto flex items-center justify-center bg-gray-100 rounded-full">
+                            <i class="ri-qr-code-line text-gray-400 ri-2x"></i>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            Ajouter votre QR code de paiement
+                        </div>
+                        <label class="block">
+                            <input type="file" id="qr-input" name="qr_code" accept=".jpg,.jpeg,.png,.gif"
+                                class="hidden">
+                            <input type="text" class="hidden" id="fake-file">
+                            <button type="button" id="qr-select-btn"
+                                class="mt-2 px-4 py-2 text-sm text-primary border border-primary rounded-button !rounded-button">
+                                Choisir une image
+                            </button>
+                        </label>
+                        <div id="file-error" class="text-red-500 text-xs mt-2 hidden">
+                            Le fichier est trop volumineux. La taille maximale est de 5 MB.
+                        </div>
+                    </div>
+                    <div id="qr-image-preview" class="hidden">
+                        <img id="qr-image" class="max-w-[200px] max-h-[200px] mx-auto rounded" src=""
+                            alt="QR Code preview">
+                    </div>
+                </div>
+            </div>
+            <button id="add-btn"
+                class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-button flex items-center justify-center cursor-pointer transition-all duration-200">
+                <i class="ri-add-line mr-2 text-lg"></i>
+                <span>Ajouter la transaction</span>
+            </button>
+        </div>
+        <!-- Transactions List -->
+        <div class="bg-white rounded-lg shadow-md mt-4 mb-24">
+            <div class="p-5">
+                <div class="flex justify-between flex-wrap items-center mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-1">
+                        Historique des transactions
+                    </h2>
+                    <div class="flex items-center gap-2 mb-1 hidden">
+                        <span class="text-sm text-gray-600">Nombre transaction:</span>
+                        <span id="transaction-count"
+                            class="bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">0</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 flex-nowrap overflow-x-auto scrollBar-container px-2">
+                    <button id="filter-all" data-key="All"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        Tout
+                    </button>
+                    <button id="filter-today" data-key="today"
+                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap">
+                        Aujourd'hui
+                    </button>
+                    <button id="filter-week" data-key="week"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        cette semaine
+                    </button>
+                    <button id="filter-month" data-key="month"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        ce mois-ci
+                    </button>
+                    <button id="filter-in" data-key="Entrée"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        Entrée
+                    </button>
+                    <button id="filter-out" data-key="Sortie"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        Sortie
+                    </button>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500">
+                                <div class="col-span-3 flex items-center gap-1 cursor-pointer" data-sort="date" id="sortByDate">
+                                    <span>Date</span>
+                                    <i class="ri-arrow-up-down-line sort-indicator"></i>
+                                </div>
+                                <div class="col-span-5 flex items-center gap-1 cursor-pointer" data-sort="description">
+                                    <span>Description</span>
+                                </div>
+                                <div class="col-span-4 flex items-center gap-1 justify-end cursor-pointer"
+                                    data-sort="amount">
+                                    <span>Montant</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="transactions-container" class="divide-y divide-gray-50">
+                            <div class="transaction-row px-4 py-3 cursor-pointer" data-date="2024-01-14"
+                                data-type="income" data-amount="3200">
+                                <div class="text-center py-8 text-gray-500">
+                                    <i class="ri-inbox-line text-4xl mb-2 text-gray-300"></i>
+                                    <p>Aucune transaction pour le moment</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-4 text-center">
+                            <button id="loadMoreBtn" class="text-primary text-sm font-medium cursor-pointer hidden">Voir
+                                plus</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom Summary -->
+        <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0">
+            <div class="px-4 py-3">
+                <div class="flex justify-between items-center mb-1" id="total-in">
+                    <span class="text-sm text-gray-600">Total entrée</span>
+                    <span id="summary-positive" class="font-medium text-green-600">0 Ar</span>
+                </div>
+                <div class="flex justify-between items-center mb-1" id="total-out">
+                    <span class="text-sm text-gray-600">Total sortie</span>
+                    <span id="summary-negative" class="font-medium text-secondary">0 Ar</span>
+                </div>
+                <div class="flex justify-between items-center" id="balance-available">
+                    <span class="text-sm font-medium text-gray-700">Solde disponible</span>
+                    <span id="summary-net" class="font-semibold text-primary">0 Ar</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script id="transaction-logic">
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.getElementById("amount");
+            const addBtn = document.getElementById("add-btn");
+            const btnText = document.querySelector("#add-btn span");
+            const icon = addBtn.querySelector("i");
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const transactionsContainer = document.getElementById("transactions-container");
+            const summaryNetEl = document.getElementById("summary-net");
+            const summaryPositive = document.getElementById("summary-positive");
+            const summaryNegative = document.getElementById("summary-negative");
+            const transactionCountEl = document.getElementById("transaction-count");
+            const amountError = document.getElementById("amounterror");
+            const notesError = document.getElementById("notesError");
+            const sectorError = document.getElementById("sectorError");
+            // qr
+            const qrInput = document.getElementById("qr-input");
+            const qrPreview = document.getElementById("qr-preview");
+            const qrPlaceholder = document.getElementById("qr-placeholder");
+            const qrImagePreview = document.getElementById("qr-image-preview");
+            const qrImage = document.getElementById("qr-image");
+            const removeQr = document.getElementById("remove-qr");
+            const qrSelectBtn = document.getElementById("qr-select-btn");
+            const qrUploadContainer = document.getElementById("qr-upload-container");
+            const fakeFile = document.getElementById("fake-file");
+
+            // date filter
+            const sortByDate = document.getElementById('sortByDate');
+            let dateFilter = "desc";
+            let isActiveDateFilter = false;
+            let activeKey = "today"
+
+
+            const fileError = document.getElementById("file-error");
+            let base64File = null;
+
+            qrSelectBtn.addEventListener("click", function () {
+                qrInput.click();
+            });
+
+            qrInput.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+                fileError.classList.add("hidden");
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        fileError.classList.remove("hidden");
+                        qrInput.value = "";
+                        return;
+                    }
+                    const validTypes = ["image/jpeg", "image/png", "image/gif"];
+                    if (!validTypes.includes(file.type)) {
+                        fileError.textContent =
+                            "Format de fichier non valide. Utilisez .jpg, .png ou .gif.";
+                        fileError.classList.remove("hidden");
+                        qrInput.value = "";
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        qrImage.src = e.target.result;
+                        qrPlaceholder.classList.add("hidden");
+                        qrImagePreview.classList.remove("hidden");
+                        qrPreview.classList.remove("hidden");
+                        base64File = e.target.result;
+                        fakeFile.value = "";
+                    };
+                    reader.readAsDataURL(file);
+                }
+                validateQrForm();
+            });
+
+            function validateQrForm() {
+                const hasQrCode = qrInput.files.length > 0;
+                const isValid = hasQrCode;
+                if (isValid) {
+                    return isValid;
+                }
+            }
+
+            removeQr.addEventListener("click", function () {
+                qrInput.value = "";
+                qrPlaceholder.classList.remove("hidden");
+                qrImagePreview.classList.add("hidden");
+                qrPreview.classList.add("hidden");
+                fakeFile.value = "";
+            });
+
+            let transactions = [];
+
+            function getSafeValue(input) {
+                const raw = input.trim();
+                amountError.classList.add("hidden");
+                amountError.textContent = "";
+
+                if (!raw) {
+                    amountError.textContent = "Le champ montant ne peut pas être vide !";
+                    amountError.classList.remove("hidden");
+                    return null;
+                }
+
+                if (!/^[0-9+\-*/().\s]+$/.test(raw)) {
+                    amountError.textContent = "Caractères non autorisés !";
+                    amountError.classList.remove("hidden");
+                    return null;
+                }
+
+                if (/[+\-*/]{2,}/.test(raw)) {
+                    amountError.textContent = "Syntaxe invalide !";
+                    amountError.classList.remove("hidden");
+                    return null;
+                }
+
+                try {
+                    const value = eval(raw);
+                    if (isNaN(value) || value === 0) {
+                        amountError.textContent = "Montant invalide !";
+                        amountError.classList.remove("hidden");
+                        return null;
+                    }
+                    return value;
+                } catch {
+                    amountError.textContent = "Erreur dans l'évaluation !";
+                    amountError.classList.remove("hidden");
+                    return null;
+                }
+            }
+
+            function handleFilterClick(filterId, filterValue) {
+                const buttons = document.querySelectorAll('[id^="filter-"]');
+
+                document.getElementById('total-out').classList.remove('hidden')
+                document.getElementById('total-in').classList.remove('hidden')
+                document.getElementById('balance-available').classList.remove('hidden')
+                if (filterValue == "Sortie") {
+                    document.getElementById('total-in').classList.add('hidden')
+                    document.getElementById('balance-available').classList.add('hidden')
+                } else if (filterValue == "Entrée") {
+                    document.getElementById('total-out').classList.add('hidden')
+                    document.getElementById('balance-available').classList.add('hidden')
+                } else if (filterValue == "All") {
+                    activeKey = "All"
+                }
+
+                // Reset tous les boutons
+                buttons.forEach((btn) => {
+                    btn.classList.replace("bg-primary", "bg-gray-100");
+                    btn.classList.replace("text-white", "text-gray-600");
+                });
+
+                // Activer le bouton cliqué
+                const current = document.getElementById(filterId);
+                current.classList.replace("bg-gray-100", "bg-primary");
+                current.classList.replace("text-gray-600", "text-white");
+
+                fetchTransactions(filterValue)
+                scrollAtTheTopList();
+            }
+
+            // Déclaration des filtres (id bouton => valeur du filtre)
+            const filters = {
+                "filter-all": "All",
+                "filter-in": "Entrée",
+                "filter-out": "Sortie",
+                "filter-today": "today",
+                "filter-week": "week",
+                "filter-month": "month",
+            };
+
+            // Attacher tous les events dynamiquement
+            Object.entries(filters).forEach(([id, value]) => {
+                document.getElementById(id).addEventListener("click", () => handleFilterClick(id, value));
+            });
+
+            function formatCurrency(amount) {
+                return (
+                    new Intl.NumberFormat("fr-MG", {
+                        maximumFractionDigits: 0,
+                    }).format(amount) + " Ar"
+                );
+            }
+
+            function updatePreviewValues() {
+                const amount = parseFloat(amountInput.value) || 0;
+            }
+
+            function updateSummary(data = null) {
+                let pos;
+                let neg;
+                let total;
+                if (data) {
+                    pos = data.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    neg = data.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    let posAll = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    let negAll = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    total = posAll - negAll;
+                } else {
+                    pos = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    neg = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    total = pos - neg;
+                }
+                summaryNetEl.textContent = formatCurrency(total);
+                summaryPositive.textContent = formatCurrency(pos);
+                summaryNegative.textContent = formatCurrency(neg);
+                transactionCountEl.textContent = transactions.length;
+            }
+
+            function renderTransactions() {
+                transactionsContainer.innerHTML = "";
+                if (transactions.length === 0) {
+                    transactionsContainer.innerHTML = `
+                            <div class="transaction-row px-4 py-3 cursor-pointer" data-date="2024-01-14"
+                                data-type="income" data-amount="3200">
+                                <div class="text-center py-8 text-gray-500">
+                                    <i class="ri-inbox-line text-4xl mb-2 text-gray-300"></i>
+                                    <p>Aucune transaction pour le moment</p>
+                                </div>
+                            </div>`;
+                    return;
+                }
+                loadMoreBtn.classList.toggle('hidden', transactions.length !== 10);
+                transactions.forEach(t => {
+                    const description = t.field_description;
+                    const maxLength = 15;
+
+                    const shortDesc = description.length > maxLength
+                        ? description.substring(0, maxLength) + "..."
+                        : description;
+
+                    const div = document.createElement("div");
+                    div.innerHTML = `
+
+                            <div class="transaction-row px-4 py-3 cursor-pointer" data-id="${t.nid}" data-date="2024-01-15"
+                                data-type="expense" data-amount="1250">
+                                <div class="grid grid-cols-12 gap-2 items-center">
+                                    <div class="col-span-3">
+                                        <div class="text-sm text-gray-900">${formatDate(t.created)}</div>
+                                        <div class="text-xs text-gray-500 hidden">2024</div>
+                                    </div>
+                                    <div class="col-span-5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center hidden justify-center">
+                                                <i class="ri-shopping-cart-line text-red-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm text-gray-900">
+                                                    <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
+                                ${t.field_category.title}</span>
+                                                </div>
+                                                <div class="text-xs text-gray-500 ms-1 mt-2">${shortDesc}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-span-4 text-right">
+                                        <span
+                                class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
+                                ${t.field_type == "Entrée" ? "text-green-400 ring-green-500/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}">
+                                ${t.field_type}</span> 
+                                        <div class="text-sm font-medium mt-2 ${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_amount)}</div>
+                                        <div class="text-xs hidden ${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${t.field_type}</div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    transactionsContainer.appendChild(div);
+
+                    // Show details
+                    document.querySelectorAll(".transaction-row").forEach(btn => {
+                        btn.addEventListener("click", function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = this.dataset.id;
+                            if (id) show(id);
+                        });
+                    });
+
+                });
+            }
+
+            async function fetchTransactions(req) {
+                showLoader();
+                let urlQuery = null;
+                if (req == "All") {
+                    activeKey == "All";
+                    urlQuery = API_TRANSACTION + "?sort[val]=nid&sort[op]=" + dateFilter;
+                } else {
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&sort[val]=nid&sort[op]=" + dateFilter;
+                }
+                try {
+                    const res = await fetch(`${urlQuery}`);
+                    const data = await res.json();
+                    transactions = data;
+                    renderTransactions();
+                    updateSummary();
+                    return data;
+                } catch (e) {
+                    console.error("Erreur de chargement :", e);
+                } finally {
+                    hideLoader();
+                }
+            }
+
+            function getTransactionsRange(type = "today") {
+                const now = new Date();
+                let start, end;
+
+                // Calcul du début et de la fin de "aujourd'hui"
+                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                const todayStartTs = Math.floor(todayStart.getTime() / 1000);
+                const todayEndTs = Math.floor(todayEnd.getTime() / 1000);
+
+                // Cas spécial : Entrée / Sortie (uniquement aujourd'hui)
+                if (type === "Entrée" || type === "Sortie") {
+                    return `?fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description` +
+                        `&filters[field_type][val]=${encodeURIComponent(type)}` +
+                        `&filters[created][op]=BETWEEN&filters[created][val][]=${todayStartTs}&filters[created][val][]=${todayEndTs}`;
+                }
+
+                // Sinon, cas génériques field_evidence
+                if (type === "today") {
+                    start = todayStart;
+                    end = todayEnd;
+                }
+
+                if (type === "week") {
+                    const day = now.getDay();
+                    const diffToMonday = (day === 0 ? -6 : 1 - day);
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday, 0, 0, 0);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    end.setHours(23, 59, 59);
+                }
+
+                if (type === "month") {
+                    start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+                }
+                
+                activeKey = type;
+                const startTs = Math.floor(start.getTime() / 1000);
+                const endTs = Math.floor(end.getTime() / 1000);
+
+                return `?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description` +
+                    `&filters[created][op]=BETWEEN&filters[created][val][]=${startTs}&filters[created][val][]=${endTs}`;
+            }
+
+            async function addTransaction(amount) {
+                showLoader();
+                const description = document.getElementById('notes').value;
+                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
+                const category = document.getElementById('sector').value;
+                const newTransaction = {
+                    "title": "transaction",
+                    "entity_type": "node",
+                    "bundle": "transactions",
+                    "field_category": parseInt(category),
+                    "body": "<h1>transaction</h1>",
+                    "field_description": description,
+                    "uid": 1,
+                    "status": 1,
+                    "field_amount": amount,
+                    "field_evidence": base64File,
+                    "field_type": type
+                }
+                try {
+                    const res = await fetch(`${API_ADD_TRANSACTION}`, {
+                        method: "POST",
+                        body: JSON.stringify(newTransaction),
+                    });
+                    const saved = await res.json();
+                    transactions.unshift({ ...saved, date: new Date(saved.date) });
+                    fetchTransactions();
+                    updateSummary();
+                } catch (err) {
+                    console.error("Erreur d'ajout :", err);
+                } finally {
+                    clearInputValue("add");
+                    hideLoader();
+                }
+            }
+
+            addBtn.addEventListener("click", () => {
+                // Réinitialiser les messages d'erreur
+                notesError.classList.add("hidden");
+                notesError.textContent = "";
+                sectorError.classList.add("hidden");
+                sectorError.textContent = "";
+
+                const description = document.getElementById('notes');
+                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
+                const category = document.getElementById('sector');
+
+                const value = getSafeValue(amountInput.value);
+
+                let hasError = false;
+
+                // Vérification description
+                if (!description.value.trim()) {
+                    notesError.textContent = "La description est obligatoire !";
+                    notesError.classList.remove("hidden");
+                    hasError = true;
+                }
+
+                if (!base64File || !qrInput.value.trim()) {
+                    if (!fakeFile.value) {
+                        fileError.textContent =
+                            "Merci de fournir une image pour l’évidence.";
+                        fileError.classList.remove("hidden");
+                        qrUploadContainer.classList.remove("border-grey-100")
+                        qrUploadContainer.classList.add("border-red-500")
+                        hasError = true;
+                    }
+                }
+
+                // Vérification category
+                if (!category.value) {
+                    sectorError.textContent = "Veuillez sélectionner une catégorie !";
+                    sectorError.classList.remove("hidden");
+                    hasError = true;
+                }
+
+                // Vérification montant
+                if (!value) {
+                    hasError = true; // l'erreur est déjà affichée par getSafeValue
+                }
+
+                if (hasError) return; // arrêter si un champ est invalide
+
+                const id = document.getElementById('tr-id').value;
+
+                if (id) {
+                    const formData = {
+                        "nid": id,
+                        "title": "transaction",
+                        "entity_type": "node",
+                        "bundle": "transactions",
+                        "field_category": parseInt(category.value),
+                        "body": "<h1>transaction</h1>",
+                        "field_description": description.value.trim(),
+                        "uid": 1,
+                        "status": 1,
+                        "field_amount": value,
+                        "field_type": type
+                    }
+                    if (base64File) {
+                        formData.field_evidence = base64File
+                    }
+                    updateTransaction(id, formData);
+                } else {
+                    addTransaction(value);
+                }
+
+                amountInput.value = "";
+                updatePreviewValues();
+            });
+
+            // async function deleteTransactionById(id) {
+            //     showLoader();
+            //     try {
+            //         const res = await fetch(`${API_BASE}/transactions/${id}`, {
+            //             method: "DELETE",
+            //         });
+
+            //         if (!res.ok) throw new Error("Échec de suppression");
+
+            //         transactions = transactions.filter(t => t.id !== id);
+            //         renderTransactions();
+            //         updateSummary();
+            //     } catch (err) {
+            //         console.error("Erreur de suppression :", err);
+            //     } finally {
+            //         hideLoader();
+            //     }
+            // }
+
+            function editTransaction(id) {
+                showLoader()
+                icon.className = "ri-save-line mr-2 text-lg";
+                const textNode = addBtn.childNodes;
+                btnText.textContent = "Enregistrer les modifications";
+                tr = transactions.filter((t) => t.nid == id);
+                transaction = tr[0];
+                fakeFile.value = "edit";
+                if (transaction) {
+                    let description = document.getElementById('notes');
+                    let category = document.getElementById('sector');
+                    let amount = document.getElementById('amount');
+                    let id = document.getElementById('tr-id');
+                    description.value = transaction.field_description;
+                    if (transaction.field_type == "Sortie") {
+                        document.querySelector('input[name="transaction_type"][value="Sortie"]').checked = true;
+                    } else {
+                        document.querySelector('input[name="transaction_type"][value="Entrée"]').checked = true;
+                    }
+
+                    if (transaction.field_evidence) {
+                        qrImage.src = transaction.field_evidence.url;
+                        qrPlaceholder.classList.add("hidden");
+                        qrImagePreview.classList.remove("hidden");
+                        qrPreview.classList.remove("hidden");
+                    }
+                    category.value = transaction.field_category.tid;;
+                    amount.value = transaction.field_amount;
+                    id.value = transaction.nid;
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                    hideLoader();
+                } else {
+                    console.error('Acune transaction trouvé')
+                }
+            }
+
+            async function updateTransaction(id, data) {
+                showLoader();
+                try {
+                    const res = await fetch(`${API_ADD_TRANSACTION}`, {
+                        method: "POST",
+                        body: JSON.stringify(data),
+                    });
+
+                    if (!res.ok) throw new Error("Échec de la mise à jour");
+
+                    const updatedTransaction = await res.json();
+                    await fetchTransactions(activeKey);
+                    show(updatedTransaction.item.nid)
+
+                    const successToast = document.createElement('div');
+                    successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium z-50';
+                    successToast.textContent = 'Modifications enregistrées';
+                    document.body.appendChild(successToast);
+                    setTimeout(() => {
+                        successToast.remove();
+                        document.body.style.overflow = '';
+                    }, 2000);
+
+                    return updatedTransaction;
+                } catch (err) {
+                    console.error("Des erreurs sont survenu :", err);
+                } finally {
+                    icon.className = "ri-add-line mr-2 text-lg";
+                    const textNode = addBtn.childNodes;
+                    btnText.textContent = "Ajouter la transaction";
+                    clearInputValue("update");
+                    hideLoader();
+                }
+            }
+
+            async function show(id) {
+                const transactionModal = document.getElementById('transactionModal');
+                const transactionForm = document.getElementById('transactionForm');
+                const closeModalBtn = document.getElementById('closeModalBtn');
+
+                tr = transactions.filter((t) => t.nid == id);
+                transaction = tr[0];
+
+                transactionModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                let details = `<div>
+                        <div class="flex flex-col items-center py-6">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3  ${transaction.field_type == "Entrée" ? "bg-green-100" : "bg-red-100"}">
+                                <i class="ri-money-dollar-circle-line text-xl ${transaction.field_type == "Entrée" ? "text-green-500" : "text-red-500"}"></i>
+                            </div>
+                            <div class="text-2xl font-semibold mb-1 ${transaction.field_type == "Entrée" ? "text-green-500" : "text-red-500"}">${formatCurrency(transaction.field_amount)}</div>
+                            <div class="flex justify-start items-center gap-2">
+                                <button class="edit-btn w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" data-id="${transaction.nid}">
+                                    <i class="ri-edit-line text-blue-600 text-sm"></i>
+                                </button>
+                                <button class="remove-btn w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 transition-colors" data-id="${transaction.nid}">
+                                    <i class="ri-delete-bin-line text-red-600 text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                                <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Type</span>
+                                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
+                                    ${transaction.field_type == "Entrée" ? "text-green-400 ring-green-400/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}"">${transaction.field_type}</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Date</span>
+                                <span class="text-sm text-gray-900">${formatDate(transaction.created)}</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Catégorie</span>
+                                <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
+                                    ${transaction.field_category.title}
+                                </span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Statut</span>
+                                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
+                                    text-green-400 ring-green-500/20 bg-green-400/10">Payé</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="text-sm text-gray-600 mt-4">Description</div>
+                            <div class="w-full p-3 pt-1 text-sm text-gray-900">${transaction.field_description}</div>
+                        </div>
+                        <div class="flex flex-col mt-0 gap-3 pb-3 border-b border-gray-100">
+                            <span class="text-sm text-gray-600">Évidence associée</span>
+                            <div class="flex flex-wrap justify-center items-center gap-2">
+                                <div class="w-full md:w-1/2 flex justify-center">
+                                    <img src="${transaction.field_evidence.url}"
+                                        alt="Image" class="w-full md:w-auto max-w-full rounded-2xl">
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+
+                transactionForm.innerHTML = details;
+
+                document.querySelectorAll(".remove-btn").forEach(btn => {
+                    btn.addEventListener("click", function (e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const id = this.dataset.id;
+                        if (id) deleteTransactionById(id);
+                    });
+                });
+
+                // edit transaction
+                document.querySelectorAll(".edit-btn").forEach(btn => {
+                    btn.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        transactionModal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                        const id = this.dataset.id;
+                        if (id) editTransaction(id);
+                    });
+                });
+
+                closeModalBtn.addEventListener('click', function () {
+                    transactionModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
+
+            }
+
+            function showLoader() {
+                document.getElementById("page-loader").classList.remove("hidden");
+            }
+
+            function clearInputValue(type) {
+                let description = document.getElementById('notes');
+                let category = document.getElementById('sector');
+                let amount = document.getElementById('amount');
+                let id = document.getElementById('tr-id');
+                description.value = "";
+                amount.value = "";
+                id.value = "";
+                qrInput.value = "";
+                qrImagePreview.classList.add("hidden");
+                qrPlaceholder.classList.remove("hidden");
+                qrUploadContainer.classList.add("border-grey-100")
+                qrUploadContainer.classList.remove("border-red-500")
+                if (type != "add") {
+                    document.querySelector('input[name="transaction_type"][value="Entrée"]').checked = true;
+                    category.value = "";
+                }
+            }
+
+            function hideLoader() {
+                document.getElementById("page-loader").classList.add("hidden");
+            }
+
+            function scrollAtTheTopList() {
+                const container = document.getElementById("transactions-container");
+                if (container) {
+                    container.scrollTo({
+                        top: 0,
+                        behavior: "smooth" // Animation fluide
+                    });
+                }
+            }
+
+            function formatDate(timestamp) {
+                // Convertir en millisecondes car JS utilise ms
+                const date = new Date(timestamp * 1000);
+
+                // Formatter en français
+                return new Intl.DateTimeFormat("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                }).format(date);
+            }
+
+            sortByDate.addEventListener('click', () => {
+                isActiveDateFilter = true
+                if (dateFilter == "desc") {
+                    dateFilter = "asc";
+                } else {
+                    dateFilter = "desc";
+                }
+                fetchTransactions(activeKey);
+            })
+
+            amountInput.addEventListener("input", updatePreviewValues);
+
+            fetchTransactions("today");
+        });
+    </script>
+
+    <script id="categories">
+        document.addEventListener("DOMContentLoaded", function () {
+            const API_BASE_CATEGORIES =
+                "https://miandrilala.online/api/v1/taxonomy_term/category";
+
+            async function loadSectors() {
+                try {
+                    const res = await fetch(API_BASE_CATEGORIES);
+                    const categories = await res.json();
+
+                    const select = document.getElementById("sector");
+                    // Vider les options existantes sauf la première
+                    select.innerHTML = '<option value="">Sélectionnez un secteur</option>';
+
+                    // Ajouter les catégories depuis l'API
+                    categories.forEach((cat) => {
+                        const option = document.createElement("option");
+                        option.value = cat.tid// option value formatée
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Erreur lors du chargement des secteurs :", error);
+                }
+            }
+            loadSectors();
+        });
+
+    </script>
+    <script id="mobileSidebarScript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebar = document.querySelector("aside");
+            const openSidebarBtn = document.getElementById("openSidebar");
+            const closeSidebarBtn = document.getElementById("closeSidebar");
+            const overlay = document.getElementById("overlay");
+            function openSidebar() {
+                sidebar.classList.remove("-translate-x-full");
+                overlay.classList.remove("hidden");
+                document.body.style.overflow = "hidden";
+            }
+            function closeSidebar() {
+                sidebar.classList.add("-translate-x-full");
+                overlay.classList.add("hidden");
+                document.body.style.overflow = "";
+            }
+            openSidebarBtn.addEventListener("click", openSidebar);
+            closeSidebarBtn.addEventListener("click", closeSidebar);
+            overlay.addEventListener("click", closeSidebar);
+            // Close sidebar when clicking on a nav link (mobile only)
+            const navLinks = document.querySelectorAll("nav a");
+            navLinks.forEach((link) => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+            // Handle window resize
+            window.addEventListener("resize", () => {
+                if (window.innerWidth >= 1024) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
