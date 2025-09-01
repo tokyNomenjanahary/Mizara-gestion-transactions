@@ -33,6 +33,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" />
+
     <style>
         :where([class^="ri-"])::before {
             content: "\f3c2";
@@ -56,6 +57,40 @@
 
         .transaction-item {
             animation: slideIn 0.3s ease-out;
+        }
+
+        .scrollBar-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filter-panel {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .filter-panel.active {
+            transform: translateY(0);
+        }
+
+        .transaction-row {
+            transition: all 0.2s ease;
+        }
+
+        .transaction-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .sort-indicator {
+            transition: transform 0.2s ease;
+        }
+
+        .sort-asc {
+            transform: rotate(0deg);
+        }
+
+        .sort-desc {
+            transform: rotate(180deg);
         }
 
         @keyframes slideIn {
@@ -88,6 +123,7 @@
             }
         }
     </style>
+
     <script>
         const API_TRANSACTION = "https://miandrilala.online/api/v1/taxonomy_term/category";
         const API_ADD_CATEGORY = "https://miandrilala.online/crud/save";
@@ -271,6 +307,12 @@
     </div>
 
     <script id="categoryManagement">
+
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
         let categories = [];
         let editingId = null;
         let deletingId = null;
@@ -345,8 +387,10 @@
                 newCategory = await res.json();
                 categories.push(newCategory);
                 fetchCategories();
+                showSuccessToast('Categorie ajoutée avec succès');
             } catch (error) {
                 console.error("Erreur lors de l'ajout de la catégorie :", error);
+                showErrorToast("Erreur lors de l'ajout de la catégorie");
             }
         }
 
@@ -376,13 +420,15 @@
                 });
                 updatedCategory = await res.json();
                 fetchCategories();
+                showSuccessToast('Modifications enregistrées');
             } catch (error) {
                 console.error("Erreur lors de la mise à jour de la catégorie :", error);
+                showErrorToast("Erreur lors de la mise à jour de la catégorie");
             }
         }
 
         function showDeleteModal(id) {
-            const category = categories.find(c => c.id == id);
+            const category = categories.find(c => c.tid == id);
             if (category) {
                 deletingId = id;
                 document.getElementById('deleteCategoryName').textContent = category.name;
@@ -390,16 +436,16 @@
             }
         }
 
-        async function deleteCategory(id) {
-            showLoader();
-            try {
-                await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-                categories = categories.filter(c => c.id != id);
-                renderCategories();
-            } catch (error) {
-                console.error("Erreur lors de la suppression de la catégorie :", error);
-            }
-        }
+        // async function deleteCategory(id) {
+        //     showLoader();
+        //     try {
+        //         await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+        //         categories = categories.filter(c => c.id != id);
+        //         renderCategories();
+        //     } catch (error) {
+        //         console.error("Erreur lors de la suppression de la catégorie :", error);
+        //     }
+        // }
 
         window.editCategory = editCategory;
         window.showDeleteModal = showDeleteModal;
@@ -414,6 +460,62 @@
         function hideLoader() {
             document.getElementById("page-loader").classList.add("hidden");
         }
+
+        // Toast handling
+        function showSuccessToast(msg) {
+            const successToast = document.createElement('div');
+            successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium z-50';
+            successToast.textContent = msg;
+            document.body.appendChild(successToast);
+            setTimeout(() => {
+                successToast.remove();
+                document.body.style.overflow = '';
+            }, 5000);
+        }
+
+        function showErrorToast(msg) {
+            const successToast = document.createElement('div');
+            successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium z-50';
+            successToast.textContent = msg;
+            document.body.appendChild(successToast);
+            setTimeout(() => {
+                successToast.remove();
+                document.body.style.overflow = '';
+            }, 5000);
+        }
+
+        cancelEdit.addEventListener('click', function () {
+            editModal.classList.add('hidden');
+            editingId = null;
+        });
+
+        cancelDelete.addEventListener('click', function () {
+            deleteModal.classList.add('hidden');
+            deletingId = null;
+        });
+
+        confirmDelete.addEventListener('click', function () {
+            if (deletingId) {
+                // deleteCategory(deletingId);
+                deleteModal.classList.add('hidden');
+                deletingId = null;
+            }
+        });
+
+        editModal.addEventListener('click', function (e) {
+            if (e.target === editModal) {
+                editModal.classList.add('hidden');
+                editingId = null;
+            }
+        });
+
+        deleteModal.addEventListener('click', function (e) {
+            if (e.target === deleteModal) {
+                deleteModal.classList.add('hidden');
+                deletingId = null;
+            }
+        });
+
     </script>
 
 
@@ -438,48 +540,6 @@
                     updateCategory(editingId, name);
                     document.getElementById('editModal').classList.add('hidden');
                     editingId = null;
-                }
-            });
-        });
-    </script>
-
-    <script id="modalHandling">
-        document.addEventListener('DOMContentLoaded', function () {
-            const editModal = document.getElementById('editModal');
-            const deleteModal = document.getElementById('deleteModal');
-            const cancelEdit = document.getElementById('cancelEdit');
-            const cancelDelete = document.getElementById('cancelDelete');
-            const confirmDelete = document.getElementById('confirmDelete');
-
-            cancelEdit.addEventListener('click', function () {
-                editModal.classList.add('hidden');
-                editingId = null;
-            });
-
-            cancelDelete.addEventListener('click', function () {
-                deleteModal.classList.add('hidden');
-                deletingId = null;
-            });
-
-            confirmDelete.addEventListener('click', function () {
-                if (deletingId) {
-                    deleteCategory(deletingId);
-                    deleteModal.classList.add('hidden');
-                    deletingId = null;
-                }
-            });
-
-            editModal.addEventListener('click', function (e) {
-                if (e.target === editModal) {
-                    editModal.classList.add('hidden');
-                    editingId = null;
-                }
-            });
-
-            deleteModal.addEventListener('click', function (e) {
-                if (e.target === deleteModal) {
-                    deleteModal.classList.add('hidden');
-                    deletingId = null;
                 }
             });
         });
