@@ -309,7 +309,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/gestion/transaction" class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                    <a href="/gestion/transaction"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-bank-card-line"></i>
                         </div>
@@ -317,7 +318,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/gestion/categories" class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                    <a href="/gestion/categories"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-swap-line"></i>
                         </div>
@@ -325,7 +327,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/transactions/historique" class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                    <a href="/transactions/historique"
+                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-history-line"></i>
                         </div>
@@ -517,6 +520,7 @@
             const applyFilters = document.getElementById('applyFilters');
             const filterCategorySelect = document.getElementById('filterCategorySelect');
             const sortByDate = document.getElementById('sortByDate');
+            let pageNumber = 0;
 
 
 
@@ -625,7 +629,7 @@
 
             function handleFilterClick(filterId, filterValue) {
                 const buttons = document.querySelectorAll('[id^="filter-"]');
-
+                pageNumber = 0;
                 document.getElementById('total-out').classList.remove('hidden')
                 document.getElementById('total-in').classList.remove('hidden')
                 document.getElementById('balance-available').classList.remove('hidden')
@@ -718,7 +722,7 @@
                             </div>`;
                     return;
                 }
-                // loadMoreBtn.classList.toggle('hidden', transactions.length !== 10);
+                loadMoreBtn.classList.toggle('hidden', transactions.length % 10 !== 0);
                 transactions.forEach(t => {
                     const description = t.field_description;
                     const maxLength = 15;
@@ -780,16 +784,30 @@
                 showLoader();
                 let urlQuery = null;
                 if (req == "All" && queryBuilder.length == 1) {
-                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&sort[val]=nid&sort[op]=desc";
+                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=10";
                 } else {
-                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description" + req;
+                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&sort[val]=nid&sort[op]=desc" + req + "&pager=" + pageNumber + "&offset=10";
                 }
-                const res = await fetch(`${API_TRANSACTION + + req}`);
+
                 try {
                     const res = await fetch(`${urlQuery}`);
                     const data = await res.json();
-                    transactions = data;
-                    loadMoreBtn.classList.toggle('hidden', data.length !== 10);
+
+                    if (pageNumber == 0) {
+                        transactions = data;
+                    } else {
+                        data.forEach(item => {
+                            const index = transactions.findIndex(t => t.nid === item.nid);
+                            if (index !== -1) {
+                                // Si l'élément existe déjà, on le remplace
+                                transactions[index] = item;
+                            } else {
+                                // Sinon, on l'ajoute
+                                transactions.push(item);
+                            }
+                        });
+                    }
+
                     renderTransactions();
                     updateSummary();
                     return data;
@@ -987,13 +1005,12 @@
             //     }
             // }
 
-            function editTransaction(id) {
+            async function editTransaction(id) {
                 showLoader()
                 icon.className = "ri-save-line mr-2 text-lg";
                 const textNode = addBtn.childNodes;
                 btnText.textContent = "Enregistrer les modifications";
-                tr = transactions.filter((t) => t.nid == id);
-                transaction = tr[0];
+                transaction = await getTransactionDetails(id);
                 fakeFile.value = "edit";
                 if (transaction) {
                     let description = document.getElementById('notes');
@@ -1035,6 +1052,7 @@
                     const updatedTransaction = await res.json();
 
                     await fetchTransactions("All");
+                    handleFilterClick("filter-all", "All")
                     show(updatedTransaction.item.nid)
                     const successToast = document.createElement('div');
                     successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium z-50';
@@ -1056,8 +1074,7 @@
             }
 
             async function show(id) {
-                tr = transactions.filter((t) => t.nid == id);
-                transaction = tr[0];
+                transaction = await getTransactionDetails(id);
 
                 transactionModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
@@ -1141,6 +1158,26 @@
                 attachCloseHandler(closeModalBtn, transactionModal);
                 attachCloseHandler(closeModalBtnEditForm, transactionModalEditForm);
 
+            }
+
+            async function getTransactionDetails(id) {
+                showLoader();
+                try {
+                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description`;
+
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error("Erreur API : " + response.status);
+
+                    const data = await response.json();
+
+                    // data est un tableau d'éléments, ici 0 ou 1
+                    return data.length > 0 ? data[0] : null;
+                } catch (error) {
+                    console.error("Erreur lors de la récupération de la transaction :", error);
+                    return null;
+                } finally {
+                    hideLoader();
+                }
             }
 
             function attachCloseHandler(button, modal) {
@@ -1232,6 +1269,7 @@
             }
 
             applyFilters.addEventListener('click', () => {
+                pageNumber = 0;
                 if (filterCategorySelect.value) {
                     categorieFilterQuery = "&filters[field_category][val]=" + filterCategorySelect.value
                     pushWithKey(queryBuilder, "category", categorieFilterQuery);
@@ -1243,6 +1281,7 @@
             })
 
             sortByDate.addEventListener('click', () => {
+                pageNumber = 0;
                 if (sortByDate.getAttribute("data-date") == "asc") {
                     sortByDate.setAttribute("data-date", "desc");
                     pushWithKey(queryBuilder, "dateSort", '&sort[val]=nid&sort[op]=desc');
@@ -1252,6 +1291,11 @@
                 }
                 fetchTransactions(concatQueries(queryBuilder));
             })
+
+            loadMoreBtn.addEventListener('click', function () {
+                pageNumber++;
+                fetchTransactions(concatQueries(queryBuilder));
+            });
 
             amountInput.addEventListener("input", updatePreviewValues);
 

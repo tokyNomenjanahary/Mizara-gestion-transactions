@@ -177,7 +177,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/gestion/transaction" class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                    <a href="/gestion/transaction"
+                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-bank-card-line"></i>
                         </div>
@@ -373,7 +374,8 @@
                     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                         <div class="px-4 py-3 border-b border-gray-100">
                             <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500">
-                                <div class="col-span-3 flex items-center gap-1 cursor-pointer" data-sort="date" id="sortByDate">
+                                <div class="col-span-3 flex items-center gap-1 cursor-pointer" data-sort="date"
+                                    id="sortByDate">
                                     <span>Date</span>
                                     <i class="ri-arrow-up-down-line sort-indicator"></i>
                                 </div>
@@ -453,6 +455,7 @@
             let dateFilter = "desc";
             let isActiveDateFilter = false;
             let activeKey = "today"
+            let pageNumber = 0;
 
 
             const fileError = document.getElementById("file-error");
@@ -551,7 +554,7 @@
 
             function handleFilterClick(filterId, filterValue) {
                 const buttons = document.querySelectorAll('[id^="filter-"]');
-
+                pageNumber = 0;
                 document.getElementById('total-out').classList.remove('hidden')
                 document.getElementById('total-in').classList.remove('hidden')
                 document.getElementById('balance-available').classList.remove('hidden')
@@ -641,7 +644,7 @@
                             </div>`;
                     return;
                 }
-                loadMoreBtn.classList.toggle('hidden', transactions.length !== 10);
+                loadMoreBtn.classList.toggle('hidden', transactions.length % 10 !== 0);
                 transactions.forEach(t => {
                     const description = t.field_description;
                     const maxLength = 15;
@@ -704,14 +707,29 @@
                 let urlQuery = null;
                 if (req == "All") {
                     activeKey == "All";
-                    urlQuery = API_TRANSACTION + "?sort[val]=nid&sort[op]=" + dateFilter;
+                    urlQuery = API_TRANSACTION + "?sort[val]=nid&sort[op]=" + dateFilter + "&pager=" + pageNumber + "&offset=10";
                 } else {
-                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&sort[val]=nid&sort[op]=" + dateFilter;
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&sort[val]=nid&sort[op]=" + dateFilter + "&pager=" + pageNumber + "&offset=10";
                 }
                 try {
                     const res = await fetch(`${urlQuery}`);
                     const data = await res.json();
-                    transactions = data;
+
+                    if (pageNumber == 0) {
+                        transactions = data;
+                    } else {
+                        data.forEach(item => {
+                            const index = transactions.findIndex(t => t.nid === item.nid);
+                            if (index !== -1) {
+                                // Si l'élément existe déjà, on le remplace
+                                transactions[index] = item;
+                            } else {
+                                // Sinon, on l'ajoute
+                                transactions.push(item);
+                            }
+                        });
+                    }
+
                     renderTransactions();
                     updateSummary();
                     return data;
@@ -758,7 +776,7 @@
                     start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
                     end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
                 }
-                
+
                 activeKey = type;
                 const startTs = Math.floor(start.getTime() / 1000);
                 const endTs = Math.floor(end.getTime() / 1000);
@@ -896,13 +914,12 @@
             //     }
             // }
 
-            function editTransaction(id) {
+            async function editTransaction(id) {
                 showLoader()
                 icon.className = "ri-save-line mr-2 text-lg";
                 const textNode = addBtn.childNodes;
                 btnText.textContent = "Enregistrer les modifications";
-                tr = transactions.filter((t) => t.nid == id);
-                transaction = tr[0];
+                transaction = await getTransactionDetails(id);
                 fakeFile.value = "edit";
                 if (transaction) {
                     let description = document.getElementById('notes');
@@ -974,9 +991,7 @@
                 const transactionModal = document.getElementById('transactionModal');
                 const transactionForm = document.getElementById('transactionForm');
                 const closeModalBtn = document.getElementById('closeModalBtn');
-
-                tr = transactions.filter((t) => t.nid == id);
-                transaction = tr[0];
+                transaction = await getTransactionDetails(id);
 
                 transactionModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
@@ -1063,6 +1078,27 @@
 
             }
 
+            async function getTransactionDetails(id) {
+                showLoader();
+                try {
+                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description`;
+
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error("Erreur API : " + response.status);
+
+                    const data = await response.json();
+
+                    // data est un tableau d'éléments, ici 0 ou 1
+                    return data.length > 0 ? data[0] : null;
+                } catch (error) {
+                    console.error("Erreur lors de la récupération de la transaction :", error);
+                    return null;
+                } finally {
+                    hideLoader();
+                }
+            }
+
+
             function showLoader() {
                 document.getElementById("page-loader").classList.remove("hidden");
             }
@@ -1113,7 +1149,8 @@
             }
 
             sortByDate.addEventListener('click', () => {
-                isActiveDateFilter = true
+                isActiveDateFilter = true;
+                pageNumber = 0;
                 if (dateFilter == "desc") {
                     dateFilter = "asc";
                 } else {
@@ -1121,6 +1158,11 @@
                 }
                 fetchTransactions(activeKey);
             })
+
+            loadMoreBtn.addEventListener('click', function () {
+                pageNumber++;
+                fetchTransactions(activeKey);
+            });
 
             amountInput.addEventListener("input", updatePreviewValues);
 
