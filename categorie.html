@@ -436,16 +436,17 @@
             }
         }
 
-        // async function deleteCategory(id) {
-        //     showLoader();
-        //     try {
-        //         await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-        //         categories = categories.filter(c => c.id != id);
-        //         renderCategories();
-        //     } catch (error) {
-        //         console.error("Erreur lors de la suppression de la catégorie :", error);
-        //     }
-        // }
+        async function deleteCategory(id) {
+            showLoader();
+            try {
+                await fetch(`https://miandrilala.online/confirm/taxonomy_term/${id}/delete`, { method: 'POST' });
+                categories = categories.filter(c => c.tid != id);
+                renderCategories();
+                showSuccessToast("Categorie supprimée avec succès");
+            } catch (error) {
+                console.error("Erreur lors de la suppression de la catégorie :", error);
+            }
+        }
 
         window.editCategory = editCategory;
         window.showDeleteModal = showDeleteModal;
@@ -496,7 +497,7 @@
 
         confirmDelete.addEventListener('click', function () {
             if (deletingId) {
-                // deleteCategory(deletingId);
+                deleteCategory(deletingId);
                 deleteModal.classList.add('hidden');
                 deletingId = null;
             }

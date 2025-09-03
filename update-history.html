@@ -596,16 +596,7 @@
                     };
                     reader.readAsDataURL(file);
                 }
-                validateQrForm();
             });
-
-            function validateQrForm() {
-                const hasQrCode = qrInput.files.length > 0;
-                const isValid = hasQrCode;
-                if (isValid) {
-                    return isValid;
-                }
-            }
 
             removeQr.addEventListener("click", function () {
                 qrInput.value = "";
@@ -928,7 +919,6 @@
                         body: JSON.stringify(newTransaction),
                     });
                     const saved = await res.json();
-                    transactions.unshift({ ...saved, date: new Date(saved.date) });
                     fetchTransactions();
                     updateSummary();
                 } catch (err) {
@@ -961,16 +951,16 @@
                     hasError = true;
                 }
 
-                if (!base64File || !qrInput.value.trim()) {
-                    if (!fakeFile.value) {
-                        fileError.textContent =
-                            "Merci de fournir une image pour l’évidence.";
-                        fileError.classList.remove("hidden");
-                        qrUploadContainer.classList.remove("border-grey-100")
-                        qrUploadContainer.classList.add("border-red-500")
-                        hasError = true;
-                    }
-                }
+                // if (!base64File || !qrInput.value.trim()) {
+                //     if (!fakeFile.value) {
+                //         fileError.textContent =
+                //             "Merci de fournir une image pour l’évidence.";
+                //         fileError.classList.remove("hidden");
+                //         qrUploadContainer.classList.remove("border-grey-100")
+                //         qrUploadContainer.classList.add("border-red-500")
+                //         hasError = true;
+                //     }
+                // }
 
                 // Vérification category
                 if (!category.value) {
@@ -1014,24 +1004,25 @@
                 updatePreviewValues();
             });
 
-            // async function deleteTransactionById(id) {
-            //     showLoader();
-            //     try {
-            //         const res = await fetch(`${API_BASE}/transactions/${id}`, {
-            //             method: "DELETE",
-            //         });
+            async function deleteTransactionById(id) {
+                showLoader();
+                try {
+                    const res = await fetch(`https://miandrilala.online/confirm/node/${id}/delete`, {
+                        method: "POST",
+                    });
 
-            //         if (!res.ok) throw new Error("Échec de suppression");
+                    if (!res.ok) throw new Error("Échec de suppression");
 
-            //         transactions = transactions.filter(t => t.id !== id);
-            //         renderTransactions();
-            //         updateSummary();
-            //     } catch (err) {
-            //         console.error("Erreur de suppression :", err);
-            //     } finally {
-            //         hideLoader();
-            //     }
-            // }
+                    transactions = transactions.filter(t => t.nid != id);
+                    renderTransactions();
+                    updateSummary();
+                } catch (err) {
+                    console.error("Erreur de suppression :", err);
+                } finally {
+                    hideLoader();
+                    transactionModal.classList.add('hidden');
+                }
+            }
 
             async function editTransaction(id) {
                 showLoader()
@@ -1143,10 +1134,13 @@
                         <div class="flex flex-col mt-0 gap-3 pb-3 border-b border-gray-100">
                             <span class="text-sm text-gray-600">Évidence associée</span>
                             <div class="flex flex-wrap justify-center items-center gap-2">
-                                <div class="w-full md:w-1/2 flex justify-center">
-                                    <img src="${transaction.field_evidence.url}"
-                                        alt="Image" class="w-full md:w-auto max-w-full rounded-2xl">
-                                </div>
+                                ${
+                                    transaction.field_evidence?.url 
+                                    ? `<div class="w-full md:w-1/2 flex justify-center">
+                                            <img src="${transaction.field_evidence.url}" alt="Image" class="w-full md:w-auto max-w-full rounded-2xl">
+                                    </div>`
+                                    : `<span class="text-gray-400 text-sm">Aucune image</span>`
+                                }
                             </div>
                         </div>
                     </div>`
@@ -1236,15 +1230,18 @@
             }
 
             function formatDate(timestamp) {
-                // Convertir en millisecondes car JS utilise ms
                 const date = new Date(timestamp * 1000);
 
-                // Formatter en français
-                return new Intl.DateTimeFormat("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                }).format(date);
+                const months = [
+                    "janv", "févr", "mars", "avr", "mai", "juin",
+                    "juil", "août", "sept", "oct", "nov", "déc"
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+
+                return `${day} ${month} ${year}`;
             }
 
             function pushWithKey(queryBuilder, key, value) {
@@ -1351,14 +1348,13 @@
                 deletingId = null;
             });
 
-            confirmDelete.addEventListener('click', function () {
+            confirmDelete.addEventListener('click', async function () {
                 if (deletingId) {
-                    // deleteCategory(deletingId);
+                     await deleteTransactionById(deletingId)
                     deleteModal.classList.add('hidden');
                     deletingId = null;
                 }
                 showSuccessToast("Transaction supprimée avec succès");
-                // showErrorToast("Transaction supprimée avec succès");
             });
 
             deleteModal.addEventListener('click', function (e) {
