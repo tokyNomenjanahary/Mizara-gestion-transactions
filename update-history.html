@@ -183,8 +183,8 @@
 
     <!-- Transaction modal for edit form -->
     <div id="transactionModalEditForm" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
-            <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-50">
+        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] h-[90vh] overflow-y-auto">
+            <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-50 mb-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-medium text-gray-900">Modifier votre transaction</h2>
                     <button id="closeModalBtnEditForm" class="w-8 h-8 flex items-center justify-center">
@@ -194,120 +194,168 @@
             </div>
             <div class="p-4 space-y-6">
                 <div id="transactionFormEditForm" class="space-y-6">
-                    <!-- Input Section -->
-                    <div class="bg-white rounded-lg shadow-md p-5 mt-4">
+                    <div id="content-nouvelle" class="space-y-6">
                         <!-- Select Secteur d'activité -->
-                        <input type="text" id="tr-id" class="hidden">
-                        <div class="mb-4">
-                            <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
-                                Catégorie
-                            </label>
-                            <div class="relative">
-                                <select id="sector"
-                                    class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
-                                    <option value="">Sélectionnez un secteur</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
+                        <div class="pb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span id="stepText" class="text-sm font-medium text-primary">Étape 1 sur 3</span>
+                                <span id="stepTitle" class="text-sm text-gray-600">Categorie & Type</span>
                             </div>
-                            <p id="sectorError" class="text-red-500 text-xs mt-2 hidden"></p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Type du transaction
-                            </label>
-                            <div id="transaction-type" class="ms-2">
-                                <div>
-                                    <label class="flex items-center gap-2">
-                                        <input type="radio" name="transaction_type" value="Entrée" checked
-                                            class="text-primary focus:ring-primary">
-                                        <span>Entrée</span>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label class="flex items-center gap-2">
-                                        <input type="radio" name="transaction_type" value="Sortie"
-                                            class="text-primary focus:ring-primary">
-                                        <span>Sortie</span>
-                                    </label>
-                                </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-300"
+                                    style="width: 33.33%"></div>
                             </div>
                         </div>
-
-                        <div class="mb-4">
-                            <div>
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Description
-                                </label>
-                                <input type="text" id="notes"
-                                    class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
-                                    placeholder="Ajoutez une description" />
-                            </div>
-                            <p id="notesError" class="text-red-500 text-xs mt-2 hidden"></p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Montant</label>
-                            <div class="relative">
-                                <input type="text" id="amount"
-                                    class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
-                                    placeholder="Entrez le montant" />
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <span class="text-gray-500">Ar</span>
-                                </div>
-                            </div>
-                            <p id="amounterror" class="text-red-500 text-xs mt-2 hidden"></p>
-                        </div>
-                        <div class="bg-white rounded-lg py-4">
-                            <div class="flex justify-between items-center mb-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">QR Code de paiement</label>
-                                <div id="qr-preview" class="hidden">
-                                    <button type="button" id="remove-qr" class="text-red-500 text-sm flex items-center">
-                                        <i class="ri-delete-bin-line mr-1"></i>Supprimer
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- upload-qr -->
-                            <div id="qr-upload-container"
-                                class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                <div id="qr-placeholder" class="space-y-2">
-                                    <div
-                                        class="w-12 h-12 mx-auto flex items-center justify-center bg-gray-100 rounded-full">
-                                        <i class="ri-qr-code-line text-gray-400 ri-2x"></i>
+                        <div class="">
+                            <div id="step1" class="step-content">
+                                <div class="bg-white mb-6">
+                                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                        Détails de la Transaction
+                                    </h2>
+                                    <input type="text" id="tr-id" class="hidden">
+                                    <div class="mb-4">
+                                        <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Catégorie
+                                        </label>
+                                        <div class="relative">
+                                            <select id="sector"
+                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
+                                                <option value="">Sélectionnez un secteur</option>
+                                            </select>
+                                            <div
+                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <p id="sectorError" class="text-red-500 text-xs mt-2 hidden"></p>
                                     </div>
-                                    <div class="text-sm text-gray-500">
-                                        Ajouter votre QR code de paiement
-                                    </div>
-                                    <label class="block">
-                                        <input type="file" id="qr-input" name="qr_code" accept=".jpg,.jpeg,.png,.gif"
-                                            class="hidden">
-                                        <input type="text" class="hidden" id="fake-file">
-                                        <button type="button" id="qr-select-btn"
-                                            class="mt-2 px-4 py-2 text-sm text-primary border border-primary rounded-button !rounded-button">
-                                            Choisir une image
-                                        </button>
-                                    </label>
-                                    <div id="file-error" class="text-red-500 text-xs mt-2 hidden">
-                                        Le fichier est trop volumineux. La taille maximale est de 5 MB.
+
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Type du transaction
+                                        </label>
+                                        <div id="transaction-type" class="ms-2">
+                                            <div>
+                                                <label class="flex items-center gap-2">
+                                                    <input type="radio" name="transaction_type" value="Entrée" checked
+                                                        class="text-primary focus:ring-primary">
+                                                    <span>Entrée</span>
+                                                </label>
+                                            </div>
+                                            <div>
+                                                <label class="flex items-center gap-2">
+                                                    <input type="radio" name="transaction_type" value="Sortie"
+                                                        class="text-primary focus:ring-primary">
+                                                    <span>Sortie</span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div id="qr-image-preview" class="hidden">
-                                    <img id="qr-image" class="max-w-[200px] max-h-[200px] mx-auto rounded" src=""
-                                        alt="QR Code preview">
+                            </div>
+                            <div id="step2" class="step-content hidden">
+                                <div class="bg-white mb-6">
+                                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                        Montant & Description
+                                    </h2>
+                                    <div class="mb-4">
+                                        <label for="amount"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Montant</label>
+                                        <div class="relative">
+                                            <input type="text" id="amount"
+                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
+                                                placeholder="Entrez le montant" />
+                                            <div
+                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <span class="text-gray-500">Ar</span>
+                                            </div>
+                                        </div>
+                                        <p id="amounterror" class="text-red-500 text-xs mt-2 hidden"></p>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Date et
+                                            heure</label>
+                                        <input type="datetime-local"
+                                            class="w-full p-3 border border-gray-200 rounded-lg text-sm">
+                                    </div>
+                                    <div class="mb-4">
+                                        <div>
+                                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                                                Description
+                                            </label>
+                                            <input type="text" id="notes"
+                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
+                                                placeholder="Ajoutez une description" />
+                                        </div>
+                                        <p id="notesError" class="text-red-500 text-xs mt-2 hidden"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="step3" class="step-content hidden">
+                                <div class="bg-white mb-6">
+                                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                        Ajouter une preuve
+                                    </h2>
+                                    <div class="bg-white rounded-lg pb-4">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">QR Code de
+                                                paiement</label>
+                                            <div id="qr-preview" class="hidden">
+                                                <button type="button" id="remove-qr"
+                                                    class="text-red-500 text-sm flex items-center">
+                                                    <i class="ri-delete-bin-line mr-1"></i>Supprimer
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- upload-qr -->
+                                        <div id="qr-upload-container"
+                                            class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                            <div id="qr-placeholder" class="space-y-2">
+                                                <div
+                                                    class="w-12 h-12 mx-auto flex items-center justify-center bg-gray-100 rounded-full">
+                                                    <i class="ri-qr-code-line text-gray-400 ri-2x"></i>
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    Ajouter votre QR code de paiement
+                                                </div>
+                                                <label class="block">
+                                                    <input type="file" id="qr-input" name="qr_code"
+                                                        accept=".jpg,.jpeg,.png,.gif" class="hidden">
+                                                    <input type="text" class="hidden" id="fake-file">
+                                                    <button type="button" id="qr-select-btn"
+                                                        class="mt-2 px-4 py-2 text-sm text-primary border border-primary rounded-button !rounded-button">
+                                                        Choisir une image
+                                                    </button>
+                                                </label>
+                                                <div id="file-error" class="text-red-500 text-xs mt-2 hidden">
+                                                    Le fichier est trop volumineux. La taille maximale est de 5 MB.
+                                                </div>
+                                            </div>
+                                            <div id="qr-image-preview" class="hidden">
+                                                <img id="qr-image" class="max-w-[200px] max-h-[200px] mx-auto rounded"
+                                                    src="" alt="QR Code preview">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <button id="add-btn"
-                            class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-button flex items-center justify-center cursor-pointer transition-all duration-200">
-                            <i class="ri-save-line mr-2 text-lg"></i>
-                            <span>Enregistrer les modifications</span>
-                        </button>
+                        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+                            <div class="flex gap-3">
+                                <button id="prevBtn"
+                                    class="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors cursor-pointer hidden !rounded-button">
+                                    Précédent
+                                </button>
+                                <button id="nextBtn"
+                                    class="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors cursor-pointer !rounded-button">
+                                    Suivant
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -513,9 +561,6 @@
     <script id="transaction-logic">
         document.addEventListener("DOMContentLoaded", function () {
             const amountInput = document.getElementById("amount");
-            const addBtn = document.getElementById("add-btn");
-            const btnText = document.querySelector("#add-btn span");
-            const icon = addBtn.querySelector("i");
             const loadMoreBtn = document.getElementById('loadMoreBtn');
             const transactionsContainer = document.getElementById("transactions-container");
             const summaryNetEl = document.getElementById("summary-net");
@@ -550,7 +595,31 @@
             const sortByDate = document.getElementById('sortByDate');
             let pageNumber = 0;
 
+            // datetime-functionality
+            const datetimeInput = document.querySelector('input[type="datetime-local"]');
+            const now = new Date();
+            const maxDate = now;
 
+            const year = maxDate.getFullYear();
+            const month = String(maxDate.getMonth() + 1).padStart(2, '0');
+            const day = String(maxDate.getDate()).padStart(2, '0');
+            const hours = String(maxDate.getHours()).padStart(2, '0');
+            const minutes = String(maxDate.getMinutes()).padStart(2, '0');
+
+            datetimeInput.max = `${year}-${month}-${day}T${hours}:${minutes}`;
+            datetimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            // Step configuration
+            const nextBtn = document.getElementById("nextBtn");
+            const originalBtnText = nextBtn.textContent;
+            let currentStep = 1;
+            const totalSteps = 3;
+            // Step titles in French
+            const stepTitles = {
+                1: "Devise & Montant",
+                2: "Données financières",
+                3: "Photo de l’évidence",
+            };
 
             // filter query
 
@@ -757,7 +826,7 @@
                                 data-type="expense" data-amount="1250">
                                 <div class="grid grid-cols-12 gap-2 items-center">
                                     <div class="col-span-3">
-                                        <div class="text-sm text-gray-900">${formatDate(t.created)}</div>
+                                        <div class="text-sm text-gray-900">${t.field_date ? formatDate(t.field_date) : "Pas de date"}</div>
                                         <div class="text-xs text-gray-500 hidden">2024</div>
                                     </div>
                                     <div class="col-span-5">
@@ -803,9 +872,9 @@
                 showLoader();
                 let urlQuery = null;
                 if (req == "All" && queryBuilder.length == 1) {
-                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=10";
+                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=10";
                 } else {
-                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&sort[val]=nid&sort[op]=desc" + req + "&pager=" + pageNumber + "&offset=10";
+                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date&sort[val]=nid&sort[op]=desc" + req + "&pager=" + pageNumber + "&offset=10";
                 }
 
                 try {
@@ -895,115 +964,6 @@
                 return rangeQuery;
             }
 
-            async function addTransaction(amount) {
-                showLoader();
-                const description = document.getElementById('notes').value;
-                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
-                const category = document.getElementById('sector').value;
-                const newTransaction = {
-                    "title": "transaction",
-                    "entity_type": "node",
-                    "bundle": "transactions",
-                    "field_category": parseInt(category),
-                    "body": "<h1>transaction</h1>",
-                    "field_description": description,
-                    "uid": 1,
-                    "status": 1,
-                    "field_amount": amount,
-                    "field_evidence": base64File,
-                    "field_type": type
-                }
-                try {
-                    const res = await fetch(`${API_ADD_TRANSACTION}`, {
-                        method: "POST",
-                        body: JSON.stringify(newTransaction),
-                    });
-                    const saved = await res.json();
-                    fetchTransactions();
-                    updateSummary();
-                } catch (err) {
-                    console.error("Erreur d'ajout :", err);
-                } finally {
-                    clearInputValue("add");
-                    hideLoader();
-                }
-            }
-
-            addBtn.addEventListener("click", () => {
-                // Réinitialiser les messages d'erreur
-                notesError.classList.add("hidden");
-                notesError.textContent = "";
-                sectorError.classList.add("hidden");
-                sectorError.textContent = "";
-
-                const description = document.getElementById('notes');
-                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
-                const category = document.getElementById('sector');
-
-                const value = getSafeValue(amountInput.value);
-
-                let hasError = false;
-
-                // Vérification description
-                if (!description.value.trim()) {
-                    notesError.textContent = "La description est obligatoire !";
-                    notesError.classList.remove("hidden");
-                    hasError = true;
-                }
-
-                // if (!base64File || !qrInput.value.trim()) {
-                //     if (!fakeFile.value) {
-                //         fileError.textContent =
-                //             "Merci de fournir une image pour l’évidence.";
-                //         fileError.classList.remove("hidden");
-                //         qrUploadContainer.classList.remove("border-grey-100")
-                //         qrUploadContainer.classList.add("border-red-500")
-                //         hasError = true;
-                //     }
-                // }
-
-                // Vérification category
-                if (!category.value) {
-                    sectorError.textContent = "Veuillez sélectionner une catégorie !";
-                    sectorError.classList.remove("hidden");
-                    hasError = true;
-                }
-
-                // Vérification montant
-                if (!value) {
-                    hasError = true; // l'erreur est déjà affichée par getSafeValue
-                }
-
-                if (hasError) return; // arrêter si un champ est invalide
-
-                const id = document.getElementById('tr-id').value;
-
-                if (id) {
-                    const formData = {
-                        "nid": id,
-                        "title": "transaction",
-                        "entity_type": "node",
-                        "bundle": "transactions",
-                        "field_category": parseInt(category.value),
-                        "body": "<h1>transaction</h1>",
-                        "field_description": description.value.trim(),
-                        "uid": 1,
-                        "status": 1,
-                        "field_amount": value,
-                        "field_type": type
-                    }
-                    if (base64File) {
-                        formData.field_evidence = base64File
-                    }
-                    updateTransaction(id, formData);
-                } else {
-                    addTransaction(value);
-                }
-
-                amountInput.value = "";
-                updatePreviewValues();
-            });
-
             async function deleteTransactionById(id) {
                 showLoader();
                 try {
@@ -1026,9 +986,6 @@
 
             async function editTransaction(id) {
                 showLoader()
-                icon.className = "ri-save-line mr-2 text-lg";
-                const textNode = addBtn.childNodes;
-                btnText.textContent = "Enregistrer les modifications";
                 transaction = await getTransactionDetails(id);
                 fakeFile.value = "edit";
                 if (transaction) {
@@ -1049,6 +1006,7 @@
                         qrImagePreview.classList.remove("hidden");
                         qrPreview.classList.remove("hidden");
                     }
+                    datetimeInput.value = transaction.field_date;
                     category.value = transaction.field_category.tid;;
                     amount.value = transaction.field_amount;
                     id.value = transaction.nid;
@@ -1080,6 +1038,10 @@
                 } finally {
                     clearInputValue("update");
                     hideLoader();
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = originalBtnText;
+                    currentStep = 1;
+                    updateStepDisplay();
                     showSuccessToast('Modifications enregistrées');
                 }
             }
@@ -1113,7 +1075,7 @@
                             </div>
                             <div class="flex justify-between py-2 border-b border-gray-100 items-center">
                                 <span class="text-sm text-gray-600">Date</span>
-                                <span class="text-sm text-gray-900">${formatDate(transaction.created)}</span>
+                                <span class="text-sm text-gray-900">${transaction.field_date ? formatDate(transaction.field_date) : "Pas de date"}</span>
                             </div>
                             <div class="flex justify-between py-2 border-b border-gray-100 items-center">
                                 <span class="text-sm text-gray-600">Catégorie</span>
@@ -1134,13 +1096,12 @@
                         <div class="flex flex-col mt-0 gap-3 pb-3 border-b border-gray-100">
                             <span class="text-sm text-gray-600">Évidence associée</span>
                             <div class="flex flex-wrap justify-center items-center gap-2">
-                                ${
-                                    transaction.field_evidence?.url 
-                                    ? `<div class="w-full md:w-1/2 flex justify-center">
-                                            <img src="${transaction.field_evidence.url}" alt="Image" class="w-full md:w-auto max-w-full rounded-2xl">
+                                ${transaction.field_evidence?.url
+                        ? `<div class="w-full md:w-1/2 flex justify-center">
+                                            <img src="${transaction.field_evidence.url}" alt="Image" class="w-1/4 md:w-auto max-w-full rounded-2xl">
                                     </div>`
-                                    : `<span class="text-gray-400 text-sm">Aucune image</span>`
-                                }
+                        : `<span class="text-gray-400 text-sm">Aucune image</span>`
+                    }
                             </div>
                         </div>
                     </div>`
@@ -1168,7 +1129,7 @@
             async function getTransactionDetails(id) {
                 showLoader();
                 try {
-                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description`;
+                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date`;
 
                     const response = await fetch(url);
                     if (!response.ok) throw new Error("Erreur API : " + response.status);
@@ -1229,8 +1190,8 @@
                 }
             }
 
-            function formatDate(timestamp) {
-                const date = new Date(timestamp * 1000);
+            function formatDate(isoString) {
+                const date = new Date(isoString);
 
                 const months = [
                     "janv", "févr", "mars", "avr", "mai", "juin",
@@ -1241,7 +1202,17 @@
                 const month = months[date.getMonth()];
                 const year = date.getFullYear();
 
-                return `${day} ${month} ${year}`;
+                // Vérifier si la chaîne ISO contient l'heure
+                const hasTime = isoString.includes("T");
+
+                let timePart = "";
+                if (hasTime) {
+                    const hours = String(date.getHours()).padStart(2, "0");
+                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                    timePart = ` ${hours}h${minutes}`;
+                }
+
+                return `${day} ${month} ${year}<br>${timePart}`;
             }
 
             function pushWithKey(queryBuilder, key, value) {
@@ -1292,10 +1263,10 @@
                 pageNumber = 0;
                 if (sortByDate.getAttribute("data-date") == "asc") {
                     sortByDate.setAttribute("data-date", "desc");
-                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=nid&sort[op]=desc');
+                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=desc');
                 } else {
                     sortByDate.setAttribute("data-date", "asc");
-                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=nid&sort[op]=asc');
+                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=asc');
                 }
                 fetchTransactions(concatQueries(queryBuilder));
             })
@@ -1350,7 +1321,7 @@
 
             confirmDelete.addEventListener('click', async function () {
                 if (deletingId) {
-                     await deleteTransactionById(deletingId)
+                    await deleteTransactionById(deletingId)
                     deleteModal.classList.add('hidden');
                     deletingId = null;
                 }
@@ -1363,6 +1334,123 @@
                     deletingId = null;
                 }
             });
+
+            // step form handler
+            // Update display for current step
+            function updateStepDisplay() {
+                // Update step text and progress
+                document.getElementById("stepText").textContent =
+                    `Étape ${currentStep} sur ${totalSteps}`;
+                document.getElementById("stepTitle").textContent = stepTitles[currentStep];
+                document.getElementById("progressBar").style.width =
+                    `${(currentStep / totalSteps) * 100}%`;
+                // Hide all steps and show current step
+                document
+                    .querySelectorAll(".step-content")
+                    .forEach((step) => step.classList.add("hidden"));
+                document.getElementById(`step${currentStep}`).classList.remove("hidden");
+                // Get navigation buttons
+                const prevBtn = document.getElementById("prevBtn");
+                // Update button states based on current step
+                if (currentStep === 1) {
+                    prevBtn.classList.add("hidden");
+                    nextBtn.textContent = "Suivant";
+                } else if (currentStep === totalSteps) {
+                    prevBtn.classList.remove("hidden");
+                    nextBtn.textContent = "Enregistrez";
+                } else {
+                    prevBtn.classList.remove("hidden");
+                    nextBtn.textContent = "Suivant";
+                }
+            }
+            // Handle next button click
+            document.getElementById("nextBtn").addEventListener("click", function () {
+                // Check if we're not on the last step
+                if (currentStep < totalSteps) {
+                    // Validate current step before proceeding
+                    if (validateCurrentStep()) {
+                        currentStep++;
+                        updateStepDisplay();
+                    }
+                } else {
+                    // On last step, complete the transaction
+                    completeTransaction();
+                }
+            });
+            // Handle previous button click
+            document.getElementById("prevBtn").addEventListener("click", function () {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStepDisplay();
+                }
+            });
+            // Validate current step before proceeding
+            function validateCurrentStep() {
+                // Réinitialiser les messages d'erreur
+                notesError.classList.add("hidden");
+                notesError.textContent = "";
+                sectorError.classList.add("hidden");
+                sectorError.textContent = "";
+
+                const description = document.getElementById('notes');
+                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
+                const category = document.getElementById('sector');
+                // For step 1, validate amount
+                if (currentStep === 1) {
+                    if (!category.value) {
+                        sectorError.textContent = "Veuillez sélectionner une catégorie !";
+                        sectorError.classList.remove("hidden");
+                        return false;
+                    }
+                } else if (currentStep === 2) {
+                    if (!getSafeValue(amountInput.value)) return false;
+                    // Vérification description
+                    if (!description.value.trim()) {
+                        notesError.textContent = "La description est obligatoire !";
+                        notesError.classList.remove("hidden");
+                        return false;
+                    }
+                }
+                return true;
+            }
+            // Complete transaction and show success modal
+            function completeTransaction() {
+                // Show loading state
+                nextBtn.disabled = true;
+                const id = document.getElementById('tr-id').value;
+                const value = getSafeValue(amountInput.value);
+                const description = document.getElementById('notes');
+                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
+                const category = document.getElementById('sector');
+                nextBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                            </div>
+                        `;
+                const formData = {
+                    "nid": id,
+                    "title": "transaction",
+                    "entity_type": "node",
+                    "bundle": "transactions",
+                    "field_category": parseInt(category.value),
+                    "body": "<h1>transaction</h1>",
+                    "field_description": description.value.trim(),
+                    "uid": 1,
+                    "status": 1,
+                    "field_amount": value,
+                    "field_type": type,
+                    "field_date": datetimeInput.value
+                }
+                if (base64File) {
+                    formData.field_evidence = base64File
+                }
+                updateTransaction(id, formData);
+
+                amountInput.value = "";
+                updatePreviewValues();
+            }
+            // Initialize step display
+            updateStepDisplay();
 
             window.showDeleteModal = showDeleteModal;
 
