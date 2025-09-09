@@ -123,17 +123,16 @@
         }
     </style>
     <script>
-        const API_BASE = "https://68a470d0c123272fb9b2b59c.mockapi.io/compta/api/v-1";
         const API_ADD_TRANSACTION = "https://miandrilala.online/crud/save";
-        const API_TRANSACTION = "https://miandrilala.online/api/v1/node/transactions"
+        const API_TRANSACTION = "https://miandrilala.online/api/v2/node/transactions"
     </script>
 </head>
 
 <body class="bg-gray-50 min-h-screen relative">
     <!-- <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div> -->
     <!-- loader -->
-    <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm"
-        style="z-index: 999999;">
+    <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm hidden"
+        style=" z-index: 999999;">
         <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
     <!-- Transaction modal for details -->
@@ -428,18 +427,19 @@
                         <div class="pb-5">
                             <div class="ms-4 flex justify-between flex-wrap items-center mb-3">
                                 <h2 class="text-lg font-semibold text-gray-800 mb-1">
-                                    Historique aujourd'hui
+                                    Historique
                                 </h2>
-                                <div class="flex items-center gap-2 mb-1 hidden">
-                                    <span class="text-sm text-gray-600">Nombre transaction:</span>
-                                    <span id="transaction-count"
-                                        class="bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full">0</span>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <button id="active-category" data-key="today"
+                                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap hidden">
+                                        Categorie
+                                    </button>
                                 </div>
                             </div>
 
                             <div class="flex gap-2 flex-nowrap overflow-x-auto scrollBar-container px-2">
                                 <button id="filter-today" data-key="today"
-                                    class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap">
+                                    class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                                     Aujourd'hui
                                 </button>
                                 <button id="filter-in" data-key="Entrée"
@@ -522,7 +522,6 @@
             const summaryNetEl = document.getElementById("summary-net");
             const summaryPositive = document.getElementById("summary-positive");
             const summaryNegative = document.getElementById("summary-negative");
-            const transactionCountEl = document.getElementById("transaction-count");
             const amountError = document.getElementById("amounterror");
             const notesError = document.getElementById("notesError");
             const sectorError = document.getElementById("sectorError");
@@ -540,6 +539,8 @@
             // date filter
             let activeKey = "today"
             let pageNumber = 0;
+            let totalItems = 0;
+            let offset = 10;
 
             // datetime-functionality
             const datetimeInput = document.querySelector('input[type="datetime-local"]');
@@ -665,19 +666,22 @@
                 }
             }
 
-            function handleFilterClick(filterId, filterValue) {
+            async function handleFilterClick(filterId, filterValue) {
+                activeKey = filterValue;
+                pageNumber = 0;
+                await fetchAllTransactions(filterValue);
+                await fetchTransactions(filterValue)
+                updateFilterUi(filterId, filterValue);
+                scrollAtTheTopList();
+                return totalItems;
+            }
+
+            function updateFilterUi(filterId, filterValue) {
                 const buttons = document.querySelectorAll('[id^="filter-"]');
                 pageNumber = 0;
                 document.getElementById('total-out').classList.remove('hidden')
                 document.getElementById('total-in').classList.remove('hidden')
                 document.getElementById('balance-available').classList.remove('hidden')
-                if (filterValue == "Sortie") {
-                    document.getElementById('total-in').classList.add('hidden')
-                    document.getElementById('balance-available').classList.add('hidden')
-                } else if (filterValue == "Entrée") {
-                    document.getElementById('total-out').classList.add('hidden')
-                    document.getElementById('balance-available').classList.add('hidden')
-                }
 
                 // Reset tous les boutons
                 buttons.forEach((btn) => {
@@ -689,9 +693,6 @@
                 const current = document.getElementById(filterId);
                 current.classList.replace("bg-gray-100", "bg-primary");
                 current.classList.replace("text-gray-600", "text-white");
-
-                fetchTransactions(filterValue)
-                scrollAtTheTopList();
             }
 
             // Déclaration des filtres (id bouton => valeur du filtre)
@@ -725,18 +726,14 @@
                 if (data) {
                     pos = data.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     neg = data.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
-                    let posAll = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
-                    let negAll = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
-                    total = posAll - negAll;
                 } else {
                     pos = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     neg = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
-                    total = pos - neg;
                 }
+                total = pos - neg;
                 summaryNetEl.textContent = formatCurrency(total);
                 summaryPositive.textContent = formatCurrency(pos);
                 summaryNegative.textContent = formatCurrency(neg);
-                transactionCountEl.textContent = transactions.length;
             }
 
             function renderTransactions() {
@@ -752,7 +749,21 @@
                             </div>`;
                     return;
                 }
-                loadMoreBtn.classList.toggle('hidden', transactions.length % 10 !== 0);
+
+                let totalPages = 1;
+                let firstPageSize = 10;
+                let perPage = 10;
+                // calcul du nombre de pages
+                loadMoreBtn.classList.remove('hidden');
+                if (totalItems > 10) {
+                    let restants = Math.max(totalItems - firstPageSize, 0);
+                    totalPages = Math.ceil(restants / perPage);
+                }
+
+                if (totalPages == pageNumber || totalItems < 10) {
+                    loadMoreBtn.classList.add('hidden');
+                }
+
                 transactions.forEach(t => {
                     const description = t.field_description;
                     const maxLength = 15;
@@ -810,14 +821,18 @@
                 });
             }
 
-            async function fetchTransactions(req) {
+            async function fetchTransactions(req, categorie = "") {
                 showLoader();
                 let urlQuery = null;
-                urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=10";
+                if (categorie) {
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&filters[field_category][val]=" + categorie + "&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=" + offset;
+                } else {
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=" + offset;
+                }
                 try {
                     const res = await fetch(`${urlQuery}`);
-                    const data = await res.json();
-
+                    const dataArray = await res.json();
+                    const data = dataArray.rows
                     if (pageNumber == 0) {
                         transactions = data;
                     } else {
@@ -841,15 +856,26 @@
                 }
             }
 
-            async function fetchAllTransactions() {
-                urlQuery = API_TRANSACTION + "?fields[]=field_amount&fields[]=nid&fields[]=field_type&sort[val]=nid&sort[op]=desc";
+            async function fetchAllTransactions(req, categorie = "") {
+                showLoader();
+                let urlQuery = null;
+                if (categorie) {
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&filters[field_category][val]=" + categorie + "&fields[]=field_amount&fields[]=nid&fields[]=field_type&sort[val]=nid&sort[op]=desc&pager=0&offset=1000";
+                } else {
+                    document.getElementById("active-category").classList.add('hidden');
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&fields[]=field_amount&fields[]=nid&fields[]=field_type&sort[val]=nid&sort[op]=desc&pager=0&offset=1000";
+                }
                 try {
                     const res = await fetch(`${urlQuery}`);
-                    const data = await res.json();
+                    const dataArray = await res.json();
+                    const data = dataArray.rows;
                     updateSummary(data);
-                    return data;
+                    totalItems = data.length;
+                    return totalItems;
                 } catch (e) {
                     console.error("Erreur de chargement :", e);
+                } finally {
+                    hideLoader();
                 }
             }
 
@@ -888,12 +914,12 @@
                 showLoader();
                 const description = document.getElementById('notes').value;
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
-                const category = document.getElementById('sector').value;
+                const category = document.getElementById('sector');
                 const newTransaction = {
                     "title": "transaction",
                     "entity_type": "node",
                     "bundle": "transactions",
-                    "field_category": parseInt(category),
+                    "field_category": parseInt(category.value),
                     "body": "<h1>transaction</h1>",
                     "field_description": description,
                     "uid": 1,
@@ -909,8 +935,11 @@
                         body: JSON.stringify(newTransaction),
                     });
                     const saved = await res.json();
-                    fetchTransactions("today");
-                    handleFilterClick("filter-today", "today");
+                    updateFilterUi("filter-today", "today");
+                    await fetchAllTransactions("today", category.value);
+                    await fetchTransactions("today", category.value);
+                    document.getElementById('active-category').textContent = category.selectedOptions[0].text;
+                    document.getElementById('active-category').classList.remove('hidden');
                 } catch (err) {
                     console.error("Erreur d'ajout :", err);
                     showErrorToast("Erreur lors de l’ajout de la transaction");
@@ -941,7 +970,7 @@
                     if (!res.ok) throw new Error("Échec de suppression");
                     transactions = transactions.filter(t => t.nid != id);
                     renderTransactions();
-                    fetchAllTransactions();
+                    fetchAllTransactions(activeKey);
                 } catch (err) {
                     console.error("Erreur de suppression :", err);
                 } finally {
@@ -1006,7 +1035,7 @@
                     const updatedTransaction = await res.json();
                     await fetchTransactions(activeKey);
                     show(updatedTransaction.item.nid)
-
+                    await fetchAllTransactions(activeKey)
                     return updatedTransaction;
                 } catch (err) {
                     console.error("Des erreurs sont survenu :", err);
@@ -1116,8 +1145,8 @@
                     const response = await fetch(url);
                     if (!response.ok) throw new Error("Erreur API : " + response.status);
 
-                    const data = await response.json();
-
+                    const dataArray = await response.json();
+                    const data = dataArray.rows;
                     // data est un tableau d'éléments, ici 0 ou 1
                     return data.length > 0 ? data[0] : null;
                 } catch (error) {
@@ -1188,7 +1217,7 @@
                     timePart = ` ${hours}h${minutes}`;
                 }
 
-                return `${day} ${month} ${year} <br>${timePart}`;
+                return `${day} ${month} <br>${timePart}`;
             }
 
             function formatTimestampDate(timestamp) {
@@ -1416,20 +1445,21 @@
 
             window.showDeleteModal = showDeleteModal;
             amountInput.addEventListener("input", updatePreviewValues);
-            fetchTransactions("today");
-            fetchAllTransactions();
+            // fetchTransactions("today");
+            // fetchAllTransactions();
         });
     </script>
 
     <script id="categories">
         document.addEventListener("DOMContentLoaded", function () {
             const API_BASE_CATEGORIES =
-                "https://miandrilala.online/api/v1/taxonomy_term/category";
+                "https://miandrilala.online/api/v2/taxonomy_term/category";
 
             async function loadSectors() {
                 try {
                     const res = await fetch(API_BASE_CATEGORIES);
-                    const categories = await res.json();
+                    const dataArray= await res.json();
+                    const categories = dataArray.rows;
 
                     const select = document.getElementById("sector");
                     // Vider les options existantes sauf la première

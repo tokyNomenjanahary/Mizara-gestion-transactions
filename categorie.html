@@ -125,7 +125,7 @@
     </style>
 
     <script>
-        const API_TRANSACTION = "https://miandrilala.online/api/v1/taxonomy_term/category";
+        const API_TRANSACTION = "https://miandrilala.online/api/v2/taxonomy_term/category";
         const API_ADD_CATEGORY = "https://miandrilala.online/crud/save";
     </script>
 </head>
@@ -321,7 +321,8 @@
             showLoader();
             try {
                 const res = await fetch(API_TRANSACTION + "?sort[val]=tid&sort[op]=desc");
-                categories = await res.json();
+                const dataArray= await res.json();
+                categories = dataArray.rows;
                 renderCategories();
             } catch (error) {
                 console.error("Erreur lors du chargement des catégories :", error);
