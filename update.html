@@ -278,6 +278,27 @@
                                 </h2>
                                 <input type="text" id="tr-id" class="hidden">
                                 <div class="mb-4">
+                                    <label for="client" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Client
+                                    </label>
+                                    <div class="relative">
+                                        <select id="client"
+                                            class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
+                                            <option value="">Sélectionnez un client</option>
+                                        </select>
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p id="clientError" class="text-red-500 text-xs mt-2 hidden"></p>
+                                </div>
+
+                                <div class="mb-4">
                                     <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
                                         Catégorie
                                     </label>
@@ -525,6 +546,7 @@
             const amountError = document.getElementById("amounterror");
             const notesError = document.getElementById("notesError");
             const sectorError = document.getElementById("sectorError");
+            const clientError = document.getElementById("clientError");
             // qr
             const qrInput = document.getElementById("qr-input");
             const qrPreview = document.getElementById("qr-preview");
@@ -567,6 +589,11 @@
             const contentNouvelle = document.getElementById('content-nouvelle');
             const contentHistorique = document.getElementById('content-historique');
             const bottomSumary = document.getElementById('bottomSumary');
+
+            // client variable
+            const API_BASE_CLIENTS =
+                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
+            let allClients = [];
 
             // Step configuration
             const nextBtn = document.getElementById("nextBtn");
@@ -765,6 +792,7 @@
                 }
 
                 transactions.forEach(t => {
+                    let clientName = searchClient(t.field_client);
                     const description = t.field_description;
                     const maxLength = 15;
 
@@ -792,7 +820,8 @@
                                                     <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
                                 ${t.field_category.title}</span>
                                                 </div>
-                                                <div class="text-xs text-gray-500 ms-1 mt-2">${shortDesc}</div>
+                                                <div class="text-xs text-gray-500 ms-1 mt-2 hidden">${shortDesc}</div>
+                                                <div class="text-xs text-gray-500 ms-1 mt-2">${clientName}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -891,7 +920,7 @@
 
                 // Cas spécial : Entrée / Sortie (uniquement aujourd'hui)
                 if (type === "Entrée" || type === "Sortie") {
-                    return `?fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date` +
+                    return `?fields[]=title&fields[]=field_client&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date` +
                         `&filters[field_type][val]=${encodeURIComponent(type)}` +
                         `&filters[created][op]=BETWEEN&filters[created][val][]=${todayStartTs}&filters[created][val][]=${todayEndTs}`;
                 }
@@ -906,8 +935,18 @@
                 const startTs = Math.floor(start.getTime() / 1000);
                 const endTs = Math.floor(end.getTime() / 1000);
 
-                return `?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date` +
+                return `?fields[]=title&fields[]=field_client&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date` +
                     `&filters[created][op]=BETWEEN&filters[created][val][]=${startTs}&filters[created][val][]=${endTs}`;
+            }
+
+            function searchClient(nid) {
+                let className = "";
+                allClients.forEach(function (client) {
+                    if (client.nid == nid) {
+                        clientName = client.field_name;
+                    }
+                });
+                return clientName;
             }
 
             async function addTransaction(amount) {
@@ -915,6 +954,7 @@
                 const description = document.getElementById('notes').value;
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
+                const client = document.getElementById('client');
                 const newTransaction = {
                     "title": "transaction",
                     "entity_type": "node",
@@ -927,7 +967,8 @@
                     "field_amount": amount,
                     "field_evidence": base64File,
                     "field_type": type,
-                    "field_date": datetimeInput.value
+                    "field_date": datetimeInput.value,
+                    "field_client": client.value
                 }
                 try {
                     const res = await fetch(`${API_ADD_TRANSACTION}`, {
@@ -993,6 +1034,7 @@
                 if (transaction) {
                     let description = document.getElementById('notes');
                     let category = document.getElementById('sector');
+                    let client = document.getElementById('client');
                     let amount = document.getElementById('amount');
                     let id = document.getElementById('tr-id');
                     description.value = transaction.field_description;
@@ -1009,7 +1051,8 @@
                         qrPreview.classList.remove("hidden");
                     }
                     datetimeInput.value = transaction.field_date;
-                    category.value = transaction.field_category.tid;;
+                    category.value = transaction.field_category.tid;
+                    client.value = transaction.field_client;
                     amount.value = transaction.field_amount;
                     id.value = transaction.nid;
                     window.scrollTo({
@@ -1057,7 +1100,7 @@
 
                 transactionModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
-
+                let clientName = searchClient(transaction.field_client);
                 let details = `<div>
                         <div class="flex flex-col items-center py-6">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3  ${transaction.field_type == "Entrée" ? "bg-green-100" : "bg-red-100"}">
@@ -1074,7 +1117,11 @@
                             </div>
                         </div>
                         <div class="space-y-4">
-                                <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Client</span>
+                                <span class="text-sm text-gray-900">${clientName}</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
                                 <span class="text-sm text-gray-600">Type</span>
                                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
                                     ${transaction.field_type == "Entrée" ? "text-green-400 ring-green-400/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}"">${transaction.field_type}</span>
@@ -1140,7 +1187,7 @@
             async function getTransactionDetails(id) {
                 showLoader();
                 try {
-                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date`;
+                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_client&fields[]=field_client&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date`;
 
                     const response = await fetch(url);
                     if (!response.ok) throw new Error("Erreur API : " + response.status);
@@ -1156,7 +1203,6 @@
                     hideLoader();
                 }
             }
-
 
             function showLoader() {
                 document.getElementById("page-loader").classList.remove("hidden");
@@ -1355,12 +1401,20 @@
                 notesError.textContent = "";
                 sectorError.classList.add("hidden");
                 sectorError.textContent = "";
+                clientError.classList.add("hidden");
+                clientError.textContent = "";
 
                 const description = document.getElementById('notes');
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
+                const client = document.getElementById('client');
                 // For step 1, validate amount
                 if (currentStep === 1) {
+                    if (!client.value) {
+                        clientError.textContent = "Veuillez sélectionner un client !";
+                        clientError.classList.remove("hidden");
+                        return false;
+                    }
                     if (!category.value) {
                         sectorError.textContent = "Veuillez sélectionner une catégorie !";
                         sectorError.classList.remove("hidden");
@@ -1386,6 +1440,7 @@
                 const description = document.getElementById('notes');
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
+                const client = document.getElementById('client');
                 nextBtn.innerHTML = `
                             <div class="flex items-center justify-center">
                                 <div class="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
@@ -1405,7 +1460,8 @@
                         "status": 1,
                         "field_amount": value,
                         "field_type": type,
-                        "field_date": datetimeInput.value
+                        "field_date": datetimeInput.value,
+                        "field_client": client.value
                     }
                     if (base64File) {
                         formData.field_evidence = base64File
@@ -1420,6 +1476,30 @@
             }
             // Initialize step display
             updateStepDisplay();
+
+            // fetch all clients
+            async function loadClients() {
+                try {
+                    const res = await fetch(API_BASE_CLIENTS);
+                    const dataArray = await res.json();
+                    const clients = dataArray.rows;
+                    allClients = clients;
+                    const select = document.getElementById("client");
+                    // Vider les options existantes sauf la première
+                    select.innerHTML = '<option value="">Sélectionnez un client</option>';
+
+                    // Ajouter les clients depuis l'API
+                    clients.forEach((client) => {
+                        const option = document.createElement("option");
+                        option.value = client.nid// option value formatée
+                        option.textContent = client.field_name;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Erreur lors du chargement des clients :", error);
+                }
+            }
+            loadClients();
 
             // Tabs handler
             function showTab(activeTab, activeContent, inactiveTab, inactiveContent) {
@@ -1445,20 +1525,18 @@
 
             window.showDeleteModal = showDeleteModal;
             amountInput.addEventListener("input", updatePreviewValues);
-            // fetchTransactions("today");
-            // fetchAllTransactions();
         });
     </script>
 
     <script id="categories">
         document.addEventListener("DOMContentLoaded", function () {
             const API_BASE_CATEGORIES =
-                "https://miandrilala.online/api/v2/taxonomy_term/category";
+                "https://miandrilala.online/api/v2/taxonomy_term/category?fields[]=tid&fields[]=name&sort[val]=name&sort[op]=asc";
 
             async function loadSectors() {
                 try {
                     const res = await fetch(API_BASE_CATEGORIES);
-                    const dataArray= await res.json();
+                    const dataArray = await res.json();
                     const categories = dataArray.rows;
 
                     const select = document.getElementById("sector");
@@ -1478,8 +1556,8 @@
             }
             loadSectors();
         });
-
     </script>
+
     <script id="mobileSidebarScript">
         document.addEventListener("DOMContentLoaded", function () {
             const sidebar = document.querySelector("aside");
