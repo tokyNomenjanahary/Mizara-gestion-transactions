@@ -131,8 +131,8 @@
 <body class="bg-gray-50 min-h-screen relative">
     <!-- <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div> -->
     <!-- loader -->
-    <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm"
-        style="z-index: 999999;">
+    <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm hidden"
+        style=" z-index: 999999;">
         <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
     <!-- Transaction modal for details -->
@@ -153,6 +153,7 @@
             </div>
         </div>
     </div>
+    <!--  -->
 
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
@@ -176,209 +177,6 @@
                     class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors !rounded-button whitespace-nowrap">
                     Supprimer
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transaction modal for edit form -->
-    <div id="transactionModalEditForm" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] h-[90vh] overflow-y-auto">
-            <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-50 mb-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-medium text-gray-900">Modifier votre transaction</h2>
-                    <button id="closeModalBtnEditForm" class="w-8 h-8 flex items-center justify-center">
-                        <i class="ri-close-line text-gray-600"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="p-4 space-y-6">
-                <div id="transactionFormEditForm" class="space-y-6">
-                    <div id="content-nouvelle" class="space-y-6">
-                        <!-- Select Secteur d'activité -->
-                        <div class="pb-3">
-                            <div class="flex items-center justify-between mb-2">
-                                <span id="stepText" class="text-sm font-medium text-primary">Étape 1 sur 3</span>
-                                <span id="stepTitle" class="text-sm text-gray-600">Categorie & Type</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-300"
-                                    style="width: 33.33%"></div>
-                            </div>
-                        </div>
-                        <div class="">
-                            <div id="step1" class="step-content">
-                                <div class="bg-white mb-6">
-                                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
-                                        Détails de la Transaction
-                                    </h2>
-                                    <input type="text" id="tr-id" class="hidden">
-
-                                    <div class="mb-4">
-                                        <label for="client" class="block text-sm font-medium text-gray-700 mb-1">
-                                            Client
-                                        </label>
-                                        <div class="relative">
-                                            <select id="client"
-                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
-                                                <option value="">Sélectionnez un client</option>
-                                            </select>
-                                            <div
-                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <p id="clientError" class="text-red-500 text-xs mt-2 hidden"></p>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
-                                            Catégorie
-                                        </label>
-                                        <div class="relative">
-                                            <select id="sector"
-                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
-                                                <option value="">Sélectionnez un secteur</option>
-                                            </select>
-                                            <div
-                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <p id="sectorError" class="text-red-500 text-xs mt-2 hidden"></p>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Type du transaction
-                                        </label>
-                                        <div id="transaction-type" class="ms-2">
-                                            <div>
-                                                <label class="flex items-center gap-2">
-                                                    <input type="radio" name="transaction_type" value="Entrée" checked
-                                                        class="text-primary focus:ring-primary">
-                                                    <span>Entrée</span>
-                                                </label>
-                                            </div>
-                                            <div>
-                                                <label class="flex items-center gap-2">
-                                                    <input type="radio" name="transaction_type" value="Sortie"
-                                                        class="text-primary focus:ring-primary">
-                                                    <span>Sortie</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="step2" class="step-content hidden">
-                                <div class="bg-white mb-6">
-                                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
-                                        Montant & Description
-                                    </h2>
-                                    <div class="mb-4">
-                                        <label for="amount"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Montant</label>
-                                        <div class="relative">
-                                            <input type="text" id="amount"
-                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
-                                                placeholder="Entrez le montant" />
-                                            <div
-                                                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <span class="text-gray-500">Ar</span>
-                                            </div>
-                                        </div>
-                                        <p id="amounterror" class="text-red-500 text-xs mt-2 hidden"></p>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Date et
-                                            heure</label>
-                                        <input type="datetime-local"
-                                            class="w-full p-3 border border-gray-200 rounded-lg text-sm">
-                                    </div>
-                                    <div class="mb-4">
-                                        <div>
-                                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
-                                                Description
-                                            </label>
-                                            <input type="text" id="notes"
-                                                class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
-                                                placeholder="Ajoutez une description" />
-                                        </div>
-                                        <p id="notesError" class="text-red-500 text-xs mt-2 hidden"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="step3" class="step-content hidden">
-                                <div class="bg-white mb-6">
-                                    <h2 class="text-xl font-semibold text-gray-900 mb-6">
-                                        Ajouter une preuve
-                                    </h2>
-                                    <div class="bg-white rounded-lg pb-4">
-                                        <div class="flex justify-between items-center mb-3">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">QR Code de
-                                                paiement</label>
-                                            <div id="qr-preview" class="hidden">
-                                                <button type="button" id="remove-qr"
-                                                    class="text-red-500 text-sm flex items-center">
-                                                    <i class="ri-delete-bin-line mr-1"></i>Supprimer
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <!-- upload-qr -->
-                                        <div id="qr-upload-container"
-                                            class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                            <div id="qr-placeholder" class="space-y-2">
-                                                <div
-                                                    class="w-12 h-12 mx-auto flex items-center justify-center bg-gray-100 rounded-full">
-                                                    <i class="ri-qr-code-line text-gray-400 ri-2x"></i>
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    Ajouter votre QR code de paiement
-                                                </div>
-                                                <label class="block">
-                                                    <input type="file" id="qr-input" name="qr_code"
-                                                        accept=".jpg,.jpeg,.png,.gif" class="hidden">
-                                                    <input type="text" class="hidden" id="fake-file">
-                                                    <button type="button" id="qr-select-btn"
-                                                        class="mt-2 px-4 py-2 text-sm text-primary border border-primary rounded-button !rounded-button">
-                                                        Choisir une image
-                                                    </button>
-                                                </label>
-                                                <div id="file-error" class="text-red-500 text-xs mt-2 hidden">
-                                                    Le fichier est trop volumineux. La taille maximale est de 5 MB.
-                                                </div>
-                                            </div>
-                                            <div id="qr-image-preview" class="hidden">
-                                                <img id="qr-image" class="max-w-[200px] max-h-[200px] mx-auto rounded"
-                                                    src="" alt="QR Code preview">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-                            <div class="flex gap-3">
-                                <button id="prevBtn"
-                                    class="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors cursor-pointer hidden !rounded-button">
-                                    Précédent
-                                </button>
-                                <button id="nextBtn"
-                                    class="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors cursor-pointer !rounded-button">
-                                    Suivant
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -407,7 +205,7 @@
                 </li>
                 <li>
                     <a href="/gestion/transaction"
-                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-bank-card-line"></i>
                         </div>
@@ -425,7 +223,7 @@
                 </li>
                 <li>
                     <a href="/transactions/historique"
-                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-history-line"></i>
                         </div>
@@ -444,140 +242,236 @@
                 </div>
             </button>
             <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
-            <div class="w-5">
-                <button id="filterBtn" class="text-gray-500 hover:text-gray-700 cursor-pointer">
-                    <i class="ri-filter-3-line text-gray-600"></i>
-                </button>
-            </div>
+            <div class="w-5"></div>
         </div>
-
-        <!--     filtre     -->
-        <div id="filterPanel" class="fixed top-0 left-0 right-0 bg-white shadow-lg z-50 filter-panel">
-            <div class="px-4 py-3 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">Filtres avancés</h2>
-                    <button id="closeFilterBtn" class="w-8 h-8 flex items-center justify-center cursor-pointer">
-                        <i class="ri-close-line text-gray-600"></i>
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-md mt-4">
+            <div class="p-4">
+                <div class="flex bg-gray-100 rounded-lg p-1 mb-6">
+                    <button id="tab-nouvelle"
+                        class="flex-1 py-2 px-4 text-sm font-medium rounded-lg text-white bg-primary transition-all duration-200 whitespace-nowrap">
+                        Nouvelle Transaction
                     </button>
-                </div>
-            </div>
-            <div class="px-4 py-4 max-h-96 overflow-y-auto">
-                <div class="space-y-6 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Client</label>
-                        <div class="relative">
-                            <select id="filterClientSelect"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none bg-white">
-                                <option value="">Tous les clients</option>
-                            </select>
-                            <div
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-                                <i class="ri-arrow-down-s-line text-gray-500"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
-                        <div class="relative">
-                            <select id="filterCategorySelect"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none bg-white">
-                                <option value="">Tous les categories</option>
-                            </select>
-                            <div
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-                                <i class="ri-arrow-down-s-line text-gray-500"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="px-4 py-4 border-t border-gray-200 flex gap-3">
-                <button id="applyFilters"
-                    class="flex-1 py-2.5 bg-primary text-white rounded-lg text-sm font-medium cursor-pointer !rounded-button">Appliquer</button>
-            </div>
-        </div>
-
-        <!-- Transactions List -->
-        <div class="bg-white rounded-lg shadow-md mt-4 mb-24">
-            <div class="p-5">
-                <div class="flex justify-between flex-wrap items-center mb-3">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-1">
+                    <button id="tab-historique"
+                        class="flex-1 py-2 px-4 text-sm font-medium rounded-lg text-gray-600 transition-all duration-200 whitespace-nowrap">
                         Historique
-                    </h2>
-                    <div class="flex items-center gap-2 mb-1">
-                        <button id="active-category"
-                            class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap hidden">
-                            categorie
-                        </button>
+                    </button>
+                </div>
+
+                <div id="content-nouvelle" class="space-y-6">
+                    <!-- Select Secteur d'activité -->
+                    <div class="pb-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span id="stepText" class="text-sm font-medium text-primary">Étape 1 sur 3</span>
+                            <span id="stepTitle" class="text-sm text-gray-600">Categorie & Type</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-300"
+                                style="width: 33.33%"></div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <div id="step1" class="step-content">
+                            <div class="bg-white mb-6">
+                                <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                    Détails de la Transaction
+                                </h2>
+                                <input type="text" id="tr-id" class="hidden">
+                                <div class="mb-4">
+                                    <label for="client" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Client
+                                    </label>
+                                    <div class="relative">
+                                        <select id="client"
+                                            class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
+                                            <option value="">Sélectionnez un client</option>
+                                        </select>
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p id="clientError" class="text-red-500 text-xs mt-2 hidden"></p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Catégorie
+                                    </label>
+                                    <div class="relative">
+                                        <select id="sector"
+                                            class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg appearance-none">
+                                            <option value="">Sélectionnez un secteur</option>
+                                        </select>
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p id="sectorError" class="text-red-500 text-xs mt-2 hidden"></p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Type du transaction
+                                    </label>
+                                    <div id="transaction-type" class="ms-2">
+                                        <div>
+                                            <label class="flex items-center gap-2">
+                                                <input type="radio" name="transaction_type" value="Entrée" checked
+                                                    class="text-primary focus:ring-primary">
+                                                <span>Entrée</span>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label class="flex items-center gap-2">
+                                                <input type="radio" name="transaction_type" value="Sortie"
+                                                    class="text-primary focus:ring-primary">
+                                                <span>Sortie</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="step2" class="step-content hidden">
+                            <div class="bg-white mb-6">
+                                <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                    Montant
+                                </h2>
+                                <div class="mb-4">
+                                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Montant
+                                        (Ar)</label>
+                                    <div class="relative">
+                                        <textarea rows="3" id="amount" placeholder="Saisis un montant par ligne"
+                                            class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"></textarea>
+                                    </div>
+                                    <p id="amounterror" class="text-red-500 text-xs mt-2 hidden"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="step3" class="step-content hidden">
+                            <div class="bg-white mb-6">
+                                <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                    Info supplémentaire
+                                </h2>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date et heure</label>
+                                    <input type="datetime-local"
+                                        class="w-full p-3 border border-gray-200 rounded-lg text-sm">
+                                </div>
+                                <div class="mb-4">
+                                    <div>
+                                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Description
+                                        </label>
+                                        <input type="text" id="notes"
+                                            class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
+                                            placeholder="Ajoutez une description" />
+                                    </div>
+                                    <p id="notesError" class="text-red-500 text-xs mt-2 hidden"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+                        <div class="flex gap-3">
+                            <button id="prevBtn"
+                                class="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors cursor-pointer hidden !rounded-button">
+                                Précédent
+                            </button>
+                            <button id="nextBtn"
+                                class="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors cursor-pointer !rounded-button">
+                                Suivant
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex gap-2 flex-nowrap overflow-x-auto scrollBar-container px-2">
-                    <button id="filter-all"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        Tout
-                    </button>
-                    <button id="filter-today"
-                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap">
-                        Aujourd'hui
-                    </button>
-                    <button id="filter-week"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        cette semaine
-                    </button>
-                    <button id="filter-month"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        ce mois-ci
-                    </button>
-                    <button id="filter-in"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        Entrée
-                    </button>
-                    <button id="filter-out"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        Sortie
-                    </button>
-                </div>
-            </div>
-            <div class="">
-                <div class="">
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="px-4 py-3 border-b border-gray-100">
-                            <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500">
-                                <div class="col-span-3 flex items-center gap-1 cursor-pointer" id="sortByDate"
-                                    data-date="desc">
-                                    <span>Date</span>
-                                    <i class="ri-arrow-up-down-line sort-indicator"></i>
-                                </div>
-                                <div class="col-span-5 flex items-center gap-1 cursor-pointer">
-                                    <span>Description</span>
-                                </div>
-                                <div class="col-span-4 flex items-center gap-1 justify-end cursor-pointer">
-                                    <span>Montant</span>
+                <div id="content-historique" class="hidden">
+                    <!-- Transactions List -->
+                    <div class="bg-white mt-4 mb-24">
+                        <div class="pb-5">
+                            <div class="ms-4 flex justify-between flex-wrap items-center mb-3">
+                                <h2 class="text-lg font-semibold text-gray-800 mb-1">
+                                    Historique
+                                </h2>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <button id="active-category" data-key="today"
+                                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap hidden">
+                                        Categorie
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                        <div id="transactions-container" class="divide-y divide-gray-50">
-                            <div class="transaction-row px-4 py-3 cursor-pointer" data-date="2024-01-14"
-                                data-type="income" data-amount="3200">
-                                <div class="text-center py-8 text-gray-500">
-                                    <i class="ri-inbox-line text-4xl mb-2 text-gray-300"></i>
-                                    <p>Aucune transaction pour le moment</p>
-                                </div>
+
+                            <div class="flex gap-2 flex-nowrap overflow-x-auto scrollBar-container px-2">
+                                <button id="filter-today" data-key="today"
+                                    class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                                    Aujourd'hui
+                                </button>
+                                <button id="filter-in" data-key="Entrée"
+                                    class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                                    Entrée
+                                </button>
+                                <button id="filter-out" data-key="Sortie"
+                                    class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                                    Sortie
+                                </button>
                             </div>
                         </div>
-                        <div class="px-4 py-4 text-center">
-                            <button id="loadMoreBtn" class="text-primary text-sm font-medium cursor-pointer hidden">Voir
-                                plus</button>
+                        <div class="">
+                            <div class="">
+                                <div class="bg-white overflow-hidden">
+                                    <div class="px-4 py-3 border-b border-gray-100">
+                                        <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500">
+                                            <div class="col-span-3 flex items-center gap-1 cursor-pointer"
+                                                data-sort="date" id="sortByDate">
+                                                <span>Date</span>
+                                            </div>
+                                            <div class="col-span-5 flex items-center gap-1 cursor-pointer"
+                                                data-sort="description">
+                                                <span>Description</span>
+                                            </div>
+                                            <div class="col-span-4 flex items-center gap-1 justify-end cursor-pointer"
+                                                data-sort="amount">
+                                                <span>Montant</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="transactions-container" class="divide-y divide-gray-50">
+                                        <div class="transaction-row px-4 py-3 cursor-pointer" data-date="2024-01-14"
+                                            data-type="income" data-amount="3200">
+                                            <div class="text-center py-8 text-gray-500">
+                                                <i class="ri-inbox-line text-4xl mb-2 text-gray-300"></i>
+                                                <p>Aucune transaction pour le moment</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="px-4 py-4 text-center">
+                                        <button id="loadMoreBtn"
+                                            class="text-primary text-sm font-medium cursor-pointer hidden">Voir
+                                            plus</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
+
         <!-- Bottom Summary -->
-        <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0">
+        <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0 hidden"
+            id="bottomSumary">
             <div class="px-4 py-3">
                 <div class="flex justify-between items-center mb-1" id="total-in">
                     <span class="text-sm text-gray-600">Total entrée</span>
@@ -603,39 +497,13 @@
             const summaryNetEl = document.getElementById("summary-net");
             const summaryPositive = document.getElementById("summary-positive");
             const summaryNegative = document.getElementById("summary-negative");
-            const transactionCountEl = document.getElementById("transaction-count");
             const amountError = document.getElementById("amounterror");
             const notesError = document.getElementById("notesError");
             const sectorError = document.getElementById("sectorError");
-            // qr
-            const qrInput = document.getElementById("qr-input");
-            const qrPreview = document.getElementById("qr-preview");
-            const qrPlaceholder = document.getElementById("qr-placeholder");
-            const qrImagePreview = document.getElementById("qr-image-preview");
-            const qrImage = document.getElementById("qr-image");
-            const removeQr = document.getElementById("remove-qr");
-            const qrSelectBtn = document.getElementById("qr-select-btn");
-            const qrUploadContainer = document.getElementById("qr-upload-container");
-            const fakeFile = document.getElementById("fake-file");
-            // modal
-            const transactionModal = document.getElementById('transactionModal');
-            const transactionForm = document.getElementById('transactionForm');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            // edit form modal
-            const transactionModalEditForm = document.getElementById('transactionModalEditForm');
-            const transactionFormEditForm = document.getElementById('transactionFormEditForm');
-            const closeModalBtnEditForm = document.getElementById('closeModalBtnEditForm');
+            const clientError = document.getElementById("clientError");
 
-            // client variable
-            const API_BASE_CLIENTS =
-                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
-            let allClients = [];
-
-            // filter dom
-            const applyFilters = document.getElementById('applyFilters');
-            const filterCategorySelect = document.getElementById('filterCategorySelect');
-            const filterClientSelect = document.getElementById('filterClientSelect');
-            const sortByDate = document.getElementById('sortByDate');
+            // date filter
+            let activeKey = "today"
             let pageNumber = 0;
             let totalItems = 0;
             let offset = 10;
@@ -654,6 +522,23 @@
             datetimeInput.max = `${year}-${month}-${day}T${hours}:${minutes}`;
             datetimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 
+            // transaction modal
+            const transactionModal = document.getElementById('transactionModal');
+            const transactionForm = document.getElementById('transactionForm');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            // Tab handler variable
+            const tabNouvelle = document.getElementById('tab-nouvelle');
+            const tabHistorique = document.getElementById('tab-historique');
+            const contentNouvelle = document.getElementById('content-nouvelle');
+            const contentHistorique = document.getElementById('content-historique');
+            const bottomSumary = document.getElementById('bottomSumary');
+
+            // client variable
+            const API_BASE_CLIENTS =
+                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
+            let allClients = [];
+
             // Step configuration
             const nextBtn = document.getElementById("nextBtn");
             const originalBtnText = nextBtn.textContent;
@@ -661,117 +546,67 @@
             const totalSteps = 3;
             // Step titles in French
             const stepTitles = {
-                1: "Devise & Montant",
+                1: "Details",
                 2: "Données financières",
-                3: "Photo de l’évidence",
+                3: "Description",
             };
-
-            // filter query
-
-            let categorieFilterQuery = null;
-            let clientFilterQuery = null;
-            let PeriodQuery = null;
-            let dateFilterQuery = null;
-            let queryBuilder = [];
-
-
-
-            const fileError = document.getElementById("file-error");
-            let base64File = null;
-
-            qrSelectBtn.addEventListener("click", function () {
-                qrInput.click();
-            });
-
-            qrInput.addEventListener("change", function (e) {
-                const file = e.target.files[0];
-                fileError.classList.add("hidden");
-                if (file) {
-                    if (file.size > 5 * 1024 * 1024) {
-                        fileError.classList.remove("hidden");
-                        qrInput.value = "";
-                        return;
-                    }
-                    const validTypes = ["image/jpeg", "image/png", "image/gif"];
-                    if (!validTypes.includes(file.type)) {
-                        fileError.textContent =
-                            "Format de fichier non valide. Utilisez .jpg, .png ou .gif.";
-                        fileError.classList.remove("hidden");
-                        qrInput.value = "";
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        qrImage.src = e.target.result;
-                        qrPlaceholder.classList.add("hidden");
-                        qrImagePreview.classList.remove("hidden");
-                        qrPreview.classList.remove("hidden");
-                        base64File = e.target.result;
-                        fakeFile.value = "";
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            removeQr.addEventListener("click", function () {
-                qrInput.value = "";
-                qrPlaceholder.classList.remove("hidden");
-                qrImagePreview.classList.add("hidden");
-                qrPreview.classList.add("hidden");
-                fakeFile.value = "";
-            });
 
             let transactions = [];
 
             function getSafeValue(input) {
-                const raw = input.trim();
+                const lines = input.split("\n"); // sépare sur les retours à la ligne
+                const results = [];
+
                 amountError.classList.add("hidden");
                 amountError.textContent = "";
 
-                if (!raw) {
-                    amountError.textContent = "Le champ montant ne peut pas être vide !";
-                    amountError.classList.remove("hidden");
-                    return null;
-                }
+                for (let line of lines) {
+                    const raw = line.trim();
+                    if (!raw) continue; // ignorer les lignes vides
 
-                if (!/^[0-9+\-*/().\s]+$/.test(raw)) {
-                    amountError.textContent = "Caractères non autorisés !";
-                    amountError.classList.remove("hidden");
-                    return null;
-                }
-
-                if (/[+\-*/]{2,}/.test(raw)) {
-                    amountError.textContent = "Syntaxe invalide !";
-                    amountError.classList.remove("hidden");
-                    return null;
-                }
-
-                try {
-                    const value = eval(raw);
-                    if (isNaN(value) || value === 0) {
-                        amountError.textContent = "Montant invalide !";
+                    if (!/^[0-9+\-*/().\s]+$/.test(raw)) {
+                        amountError.textContent = "Caractères non autorisés !";
                         amountError.classList.remove("hidden");
-                        return null;
+                        return false;
                     }
-                    return value;
-                } catch {
-                    amountError.textContent = "Erreur dans l'évaluation !";
-                    amountError.classList.remove("hidden");
-                    return null;
+
+                    if (/[+\-*/]{2,}/.test(raw)) {
+                        amountError.textContent = "Syntaxe invalide !";
+                        amountError.classList.remove("hidden");
+                        return false;
+                    }
+
+                    try {
+                        const value = eval(raw);
+                        if (isNaN(value) || value === 0) {
+                            amountError.textContent = "Montant invalide !";
+                            amountError.classList.remove("hidden");
+                            return false;
+                        }
+                        results.push(value);
+                    } catch {
+                        amountError.textContent = "Erreur dans l'évaluation !";
+                        amountError.classList.remove("hidden");
+                        return false;
+                    }
                 }
+
+                return results; // retourne un tableau [100, 101, 102]
             }
 
             async function handleFilterClick(filterId, filterValue) {
+                activeKey = filterValue;
                 pageNumber = 0;
-                getTransactionsRange(filterValue);
-                if (queryBuilder.length == 1) {
-                    await fetchAllTransactions(queryBuilder[0].first);
-                    await fetchTransactions(queryBuilder[0].first)
-                } else if (queryBuilder.length > 1) {
-                    await fetchAllTransactions(concatQueries(queryBuilder));
-                    await fetchTransactions(concatQueries(queryBuilder));
-                }
+                await fetchAllTransactions(filterValue);
+                await fetchTransactions(filterValue)
+                updateFilterUi(filterId, filterValue);
+                scrollAtTheTopList();
+                return totalItems;
+            }
+
+            function updateFilterUi(filterId, filterValue) {
                 const buttons = document.querySelectorAll('[id^="filter-"]');
+                pageNumber = 0;
                 document.getElementById('total-out').classList.remove('hidden')
                 document.getElementById('total-in').classList.remove('hidden')
                 document.getElementById('balance-available').classList.remove('hidden')
@@ -786,34 +621,19 @@
                 const current = document.getElementById(filterId);
                 current.classList.replace("bg-gray-100", "bg-primary");
                 current.classList.replace("text-gray-600", "text-white");
-                scrollAtTheTopList();
-                return totalItems;
             }
 
             // Déclaration des filtres (id bouton => valeur du filtre)
             const filters = {
-                "filter-all": "All",
                 "filter-in": "Entrée",
                 "filter-out": "Sortie",
-                "filter-today": "today",
-                "filter-week": "week",
-                "filter-month": "month",
+                "filter-today": "today"
             };
 
             // Attacher tous les events dynamiquement
             Object.entries(filters).forEach(([id, value]) => {
                 document.getElementById(id).addEventListener("click", () => handleFilterClick(id, value));
             });
-
-            function searchClient(nid) {
-                let clientName = "";
-                allClients.forEach(function (client) {
-                    if (client.nid == nid) {
-                        clientName = client.field_name;
-                    }
-                });
-                return clientName;
-            }
 
             function formatCurrency(amount) {
                 return (
@@ -901,6 +721,7 @@
                                                     <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
                                 ${t.field_category.title}</span>
                                                 </div>
+                                                <div class="text-xs text-gray-500 ms-1 mt-2 hidden">${shortDesc}</div>
                                                 <div class="text-xs text-gray-500 ms-1 mt-2">${clientName}</div>
                                             </div>
                                         </div>
@@ -915,34 +736,33 @@
                                     </div>
                                 </div>
                             </div>`;
-
-                    const row = div.querySelector(".transaction-row");
-
-                    row.addEventListener("click", function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const id = this.dataset.id;
-                        if (id) show(id);
-                    });
                     transactionsContainer.appendChild(div);
+
+                    // Show details
+                    document.querySelectorAll(".transaction-row").forEach(btn => {
+                        btn.addEventListener("click", function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = this.dataset.id;
+                            if (id) show(id);
+                        });
+                    });
 
                 });
             }
 
-            async function fetchTransactions(req) {
+            async function fetchTransactions(req, categorie = "") {
                 showLoader();
                 let urlQuery = null;
-                if (req == "All" && queryBuilder.length == 1) {
-                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=10";
+                if (categorie) {
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&filters[field_category][val]=" + categorie + "&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=" + offset;
                 } else {
-                    urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date&sort[val]=nid&sort[op]=desc" + req + "&pager=" + pageNumber + "&offset=10";
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=" + offset;
                 }
-
                 try {
                     const res = await fetch(`${urlQuery}`);
                     const dataArray = await res.json();
-                    const data = dataArray.rows;
-
+                    const data = dataArray.rows
                     if (pageNumber == 0) {
                         transactions = data;
                     } else {
@@ -961,15 +781,20 @@
                     return data;
                 } catch (e) {
                     console.error("Erreur de chargement :", e);
-                    throw e;
                 } finally {
                     hideLoader();
                 }
             }
 
-            async function fetchAllTransactions(req) {
+            async function fetchAllTransactions(req, categorie = "") {
                 showLoader();
-                urlQuery = API_TRANSACTION + "?fields[]=field_amount&fields[]=nid&fields[]=field_type&sort[val]=nid&sort[op]=desc&pager=0&offset=1000" + req;
+                let urlQuery = null;
+                if (categorie) {
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&filters[field_category][val]=" + categorie + "&fields[]=field_amount&fields[]=nid&fields[]=field_type&sort[val]=nid&sort[op]=desc&pager=0&offset=1000";
+                } else {
+                    document.getElementById("active-category").classList.add('hidden');
+                    urlQuery = API_TRANSACTION + getTransactionsRange(req) + "&fields[]=field_amount&fields[]=nid&fields[]=field_type&sort[val]=nid&sort[op]=desc&pager=0&offset=1000";
+                }
                 try {
                     const res = await fetch(`${urlQuery}`);
                     const dataArray = await res.json();
@@ -988,16 +813,6 @@
                 const now = new Date();
                 let start, end;
 
-                if (type == "All") {
-                    // if (queryBuilder.length > 1) {
-                    //     fetchTransactions(concatQueries(queryBuilder));
-                    // } else {
-                    //     fetchTransactions('All');
-                    // }
-                    pushWithKey(queryBuilder, "first", "")
-                    return null;
-                }
-
                 // Calcul du début et de la fin de "aujourd'hui"
                 const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
                 const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -1006,40 +821,149 @@
 
                 // Cas spécial : Entrée / Sortie (uniquement aujourd'hui)
                 if (type === "Entrée" || type === "Sortie") {
-                    let typeQuery = `&filters[field_type][val]=${encodeURIComponent(type)}` +
+                    return `?fields[]=title&fields[]=field_client&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date` +
+                        `&filters[field_type][val]=${encodeURIComponent(type)}` +
                         `&filters[created][op]=BETWEEN&filters[created][val][]=${todayStartTs}&filters[created][val][]=${todayEndTs}`;
-                    // queryBuilder.push(typeQuery)
-                    pushWithKey(queryBuilder, "first", typeQuery)
-                    return typeQuery;
                 }
 
-                // Sinon, cas génériques 
+                // Sinon, cas génériques field_evidence
                 if (type === "today") {
                     start = todayStart;
                     end = todayEnd;
                 }
 
-                if (type === "week") {
-                    const day = now.getDay();
-                    const diffToMonday = (day === 0 ? -6 : 1 - day);
-                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday, 0, 0, 0);
-                    end = new Date(start);
-                    end.setDate(start.getDate() + 6);
-                    end.setHours(23, 59, 59);
-                }
-
-                if (type === "month") {
-                    start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-                }
+                activeKey = type;
                 const startTs = Math.floor(start.getTime() / 1000);
                 const endTs = Math.floor(end.getTime() / 1000);
 
-
-                let rangeQuery = `&filters[created][op]=BETWEEN&filters[created][val][]=${startTs}&filters[created][val][]=${endTs}`;
-                pushWithKey(queryBuilder, "first", rangeQuery)
-                return rangeQuery;
+                return `?fields[]=title&fields[]=field_client&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date` +
+                    `&filters[created][op]=BETWEEN&filters[created][val][]=${startTs}&filters[created][val][]=${endTs}`;
             }
+
+            function searchClient(nid) {
+                let className = "";
+                allClients.forEach(function (client) {
+                    if (client.nid == nid) {
+                        clientName = client.field_name;
+                    }
+                });
+                return clientName;
+            }
+
+            async function addTransaction(amount) {
+                showLoader();
+                const description = document.getElementById('notes').value;
+                const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
+                const category = document.getElementById('sector');
+                const client = document.getElementById('client');
+
+                try {
+                    const results = [];
+
+                    // Ici : on insère les transactions une par une
+                    for (const a of amount) {
+                        const newTransaction = {
+                            "title": "transaction",
+                            "entity_type": "node",
+                            "bundle": "transactions",
+                            "field_category": parseInt(category.value),
+                            "body": "<h1>transaction</h1>",
+                            "field_description": description,
+                            "uid": 1,
+                            "status": 1,
+                            "field_amount": a,
+                            "field_type": type,
+                            "field_date": datetimeInput.value,
+                            "field_client": client.value
+                        };
+
+                        const res = await fetch(`${API_ADD_TRANSACTION}`, {
+                            method: "POST",
+                            body: JSON.stringify(newTransaction),
+                        });
+
+                        const data = await res.json();
+                        results.push(data);
+                    }
+
+                    // Mise à jour de l’UI
+                    updateFilterUi("filter-today", "today");
+                    await fetchAllTransactions("today", category.value);
+                    await fetchTransactions("today", category.value);
+                    document.getElementById('active-category').textContent = category.selectedOptions[0].text;
+                    document.getElementById('active-category').classList.remove('hidden');
+                    showSuccessToast('Transactions ajoutées avec succès');
+
+                } catch (err) {
+                    console.error("Erreur d'ajout :", err);
+                    showErrorToast("Erreur lors de l’ajout des transactions");
+                } finally {
+                    clearInputValue("add");
+                    hideLoader();
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    showTab(tabHistorique, contentHistorique, tabNouvelle, contentNouvelle);
+                    bottomSumary.classList.remove('hidden')
+                    nextBtn.disabled = false;
+                    nextBtn.textContent = originalBtnText;
+                    currentStep = 1;
+                    updateStepDisplay();
+                }
+            }
+
+            // async function addTransaction(amount) {  
+            //     showLoader();
+            //     const description = document.getElementById('notes').value;
+            //     const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
+            //     const category = document.getElementById('sector');
+            //     const client = document.getElementById('client');
+            //     console.log(amount);
+            //     try {
+            //         const promises = amount.map(a => {
+            //             const newTransaction = {
+            //                 "title": "transaction",
+            //                 "entity_type": "node",
+            //                 "bundle": "transactions",
+            //                 "field_category": parseInt(category.value),
+            //                 "body": "<h1>transaction</h1>",
+            //                 "field_description": description,
+            //                 "uid": 1,
+            //                 "status": 1,
+            //                 "field_amount": a,
+            //                 "field_type": type,
+            //                 "field_date": datetimeInput.value,
+            //                 "field_client": client.value
+            //             };
+
+            //             return fetch(`${API_ADD_TRANSACTION}`, {
+            //                 method: "POST",
+            //                 body: JSON.stringify(newTransaction),
+            //             }).then(res => res.json());
+            //         });
+
+            //         const results = await Promise.all(promises);
+            //         console.log("Toutes les transactions insérées :", results);
+
+            //         updateFilterUi("filter-today", "today");
+            //         await fetchAllTransactions("today", category.value);
+            //         await fetchTransactions("today", category.value);
+            //         document.getElementById('active-category').textContent = category.selectedOptions[0].text;
+            //         document.getElementById('active-category').classList.remove('hidden');
+            //         showSuccessToast('Transactions ajoutées avec succès');
+            //     } catch (err) {
+            //         console.error("Erreur d'ajout :", err);
+            //         showErrorToast("Erreur lors de l’ajout des transactions");
+            //     } finally {
+            //         clearInputValue("add");
+            //         hideLoader();
+            //         window.scrollTo({ top: 0, behavior: "smooth" });
+            //         showTab(tabHistorique, contentHistorique, tabNouvelle, contentNouvelle);
+            //         bottomSumary.classList.remove('hidden')
+            //         nextBtn.disabled = false;
+            //         nextBtn.textContent = originalBtnText;
+            //         currentStep = 1;
+            //         updateStepDisplay();
+            //     }
+            // }
 
             async function deleteTransactionById(id) {
                 showLoader();
@@ -1049,10 +973,9 @@
                     });
 
                     if (!res.ok) throw new Error("Échec de suppression");
-
                     transactions = transactions.filter(t => t.nid != id);
                     renderTransactions();
-                    await fetchAllTransactions(concatQueries(queryBuilder));
+                    fetchAllTransactions(activeKey);
                 } catch (err) {
                     console.error("Erreur de suppression :", err);
                 } finally {
@@ -1063,8 +986,14 @@
 
             async function editTransaction(id) {
                 showLoader()
+                showTab(tabNouvelle, contentNouvelle, tabHistorique, contentHistorique);
+                bottomSumary.classList.add('hidden')
+                tabNouvelle.textContent = "Modifier transaction"
+                nextBtn.disabled = false;
+                nextBtn.textContent = originalBtnText;
+                currentStep = 1;
+                updateStepDisplay();
                 transaction = await getTransactionDetails(id);
-                fakeFile.value = "edit";
                 if (transaction) {
                     let description = document.getElementById('notes');
                     let category = document.getElementById('sector');
@@ -1077,18 +1006,15 @@
                     } else {
                         document.querySelector('input[name="transaction_type"][value="Entrée"]').checked = true;
                     }
-
-                    if (transaction.field_evidence) {
-                        qrImage.src = transaction.field_evidence.url;
-                        qrPlaceholder.classList.add("hidden");
-                        qrImagePreview.classList.remove("hidden");
-                        qrPreview.classList.remove("hidden");
-                    }
                     datetimeInput.value = transaction.field_date;
                     category.value = transaction.field_category.tid;
                     client.value = transaction.field_client;
-                    amount.value = transaction.field_amount;
+                    amount.value += transaction.field_amount;
                     id.value = transaction.nid;
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
                     hideLoader();
                 } else {
                     console.error('Acune transaction trouvé')
@@ -1096,8 +1022,8 @@
             }
 
             async function updateTransaction(id, data) {
+                showLoader();
                 try {
-                    showLoader();
                     const res = await fetch(`${API_ADD_TRANSACTION}`, {
                         method: "POST",
                         body: JSON.stringify(data),
@@ -1106,16 +1032,17 @@
                     if (!res.ok) throw new Error("Échec de la mise à jour");
 
                     const updatedTransaction = await res.json();
+                    await fetchTransactions(activeKey);
                     show(updatedTransaction.item.nid)
-                    await fetchAllTransactions(concatQueries(queryBuilder));
-                    await fetchTransactions(concatQueries(queryBuilder));
-                    transactionModalEditForm.classList.add('hidden')
+                    await fetchAllTransactions(activeKey)
                     return updatedTransaction;
                 } catch (err) {
                     console.error("Des erreurs sont survenu :", err);
+                    showErrorToast("Erreur lors de la modification de la transaction");
                 } finally {
                     clearInputValue("update");
                     hideLoader();
+                    tabNouvelle.textContent = "Nouvelle transaction"
                     nextBtn.disabled = false;
                     nextBtn.textContent = originalBtnText;
                     currentStep = 1;
@@ -1126,10 +1053,10 @@
 
             async function show(id) {
                 transaction = await getTransactionDetails(id);
-                let clientName = searchClient(transaction.field_client);
+
                 transactionModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
-
+                let clientName = searchClient(transaction.field_client);
                 let details = `<div>
                         <div class="flex flex-col items-center py-6">
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3  ${transaction.field_type == "Entrée" ? "bg-green-100" : "bg-red-100"}">
@@ -1140,7 +1067,7 @@
                                 <button class="edit-btn w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" data-id="${transaction.nid}">
                                     <i class="ri-edit-line text-blue-600 text-sm"></i>
                                 </button>
-                                <button class="remove-btn w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 transition-colors" onclick="showDeleteModal(${transaction.nid})" data-id="${transaction.nid}">
+                                <button class="remove-btn w-6 h-6 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 transition-colors" onclick="showDeleteModal(${transaction.nid});" data-id="${transaction.nid}">
                                     <i class="ri-delete-bin-line text-red-600 text-sm"></i>
                                 </button>
                             </div>
@@ -1184,7 +1111,7 @@
                             <div class="flex flex-wrap justify-center items-center gap-2">
                                 ${transaction.field_evidence?.url
                         ? `<div class="w-full md:w-1/2 flex justify-center">
-                                            <img src="${transaction.field_evidence.url}" alt="Image" class="w-1/4 md:w-auto max-w-full rounded-2xl">
+                                            <img src="${transaction.field_evidence.url}" alt="Image" class="w-1/4 rounded-2xl">
                                     </div>`
                         : `<span class="text-gray-400 text-sm">Aucune image</span>`
                     }
@@ -1200,29 +1127,29 @@
                         e.preventDefault();
                         e.stopPropagation();
                         transactionModal.classList.add('hidden');
-                        transactionModalEditForm.classList.remove('hidden')
                         document.body.style.overflow = '';
                         const id = this.dataset.id;
                         if (id) editTransaction(id);
                     });
                 });
 
-                attachCloseHandler(closeModalBtn, transactionModal);
-                attachCloseHandler(closeModalBtnEditForm, transactionModalEditForm);
+                closeModalBtn.addEventListener('click', function () {
+                    transactionModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
 
             }
 
             async function getTransactionDetails(id) {
                 showLoader();
                 try {
-                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date`;
+                    const url = `${API_TRANSACTION}?filters[nid][val]=${id}&fields[]=title&fields[]=field_client&fields[]=field_client&fields[]=field_evidence&fields[]=created&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date`;
 
                     const response = await fetch(url);
                     if (!response.ok) throw new Error("Erreur API : " + response.status);
 
                     const dataArray = await response.json();
                     const data = dataArray.rows;
-
                     // data est un tableau d'éléments, ici 0 ou 1
                     return data.length > 0 ? data[0] : null;
                 } catch (error) {
@@ -1231,13 +1158,6 @@
                 } finally {
                     hideLoader();
                 }
-            }
-
-            function attachCloseHandler(button, modal) {
-                button.addEventListener('click', function () {
-                    modal.classList.add('hidden');
-                    document.body.style.overflow = '';
-                });
             }
 
             function showLoader() {
@@ -1252,11 +1172,6 @@
                 description.value = "";
                 amount.value = "";
                 id.value = "";
-                qrInput.value = "";
-                qrImagePreview.classList.add("hidden");
-                qrPlaceholder.classList.remove("hidden");
-                qrUploadContainer.classList.add("border-grey-100")
-                qrUploadContainer.classList.remove("border-red-500")
                 if (type != "add") {
                     document.querySelector('input[name="transaction_type"][value="Entrée"]').checked = true;
                     category.value = "";
@@ -1299,7 +1214,7 @@
                     timePart = ` ${hours}h${minutes}`;
                 }
 
-                return `${day} ${month}<br>${timePart}`;
+                return `${day} ${month} <br>${timePart}`;
             }
 
             function formatTimestampDate(timestamp) {
@@ -1317,81 +1232,9 @@
                 return `${day} ${month} ${year}`;
             }
 
-            function pushWithKey(queryBuilder, key, value) {
-                // On cherche s'il existe déjà un objet avec cette clé
-                const index = queryBuilder.findIndex(item => item[key] !== undefined);
-
-                if (index > -1) {
-                    // On supprime complètement l’ancien objet
-                    queryBuilder.splice(index, 1);
-                }
-
-                // On ajoute toujours la nouvelle valeur à la fin
-                queryBuilder.push({ [key]: value });
-
-                return queryBuilder;
-            }
-
-            function concatQueries(queryObjects) {
-                let finalQuery = "";
-
-                queryObjects.forEach(obj => {
-                    const query = Object.values(obj)[0]; // on récupère la string de l’objet
-                    if (!finalQuery) {
-                        // si finalQuery est vide → on garde tel quel
-                        finalQuery = query;
-                    } else {
-                        // sinon → on supprime le ? et on concatène avec &
-                        finalQuery += query.replace(/^\?/, "");
-                    }
-                });
-
-                return finalQuery;
-            }
-
-            applyFilters.addEventListener('click', async () => {
-                pageNumber = 0;
-                let filtersFinalQuery = "";
-                loadMoreBtn.classList.add('hidden')
-                if (filterCategorySelect.value || filterClientSelect.value) {
-                    if (filterCategorySelect.value) {
-                        categorieFilterQuery = "&filters[field_category][val]=" + filterCategorySelect.value
-                        document.getElementById('active-category').textContent = filterCategorySelect.selectedOptions[0].text;
-                        document.getElementById('active-category').classList.remove('hidden');
-                    }
-                    if (filterClientSelect.value) {
-                        clientFilterQuery = "&filters[field_client][val]=" + filterClientSelect.value
-                        // document.getElementById('active-category').textContent = filterClientSelect.selectedOptions[0].text;
-                        // document.getElementById('active-category').classList.remove('hidden');
-                    }
-                    filtersFinalQuery = categorieFilterQuery + clientFilterQuery;
-                    pushWithKey(queryBuilder, "category", filtersFinalQuery);
-                } else {
-                    pushWithKey(queryBuilder, "category", "");
-                    document.getElementById('active-category').classList.add('hidden');
-                }
-                filterPanel.classList.remove('active');
-                await fetchAllTransactions(concatQueries(queryBuilder));
-                await fetchTransactions(concatQueries(queryBuilder));
-            })
-
-            sortByDate.addEventListener('click', async () => {
-                pageNumber = 0;
-                loadMoreBtn.classList.add('hidden')
-                if (sortByDate.getAttribute("data-date") == "asc") {
-                    sortByDate.setAttribute("data-date", "desc");
-                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=desc');
-                } else {
-                    sortByDate.setAttribute("data-date", "asc");
-                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=asc');
-                }
-                await fetchAllTransactions(concatQueries(queryBuilder));
-                await fetchTransactions(concatQueries(queryBuilder));
-            })
-
             loadMoreBtn.addEventListener('click', function () {
                 pageNumber++;
-                fetchTransactions(concatQueries(queryBuilder));
+                fetchTransactions(activeKey);
             });
 
             // Toast handling
@@ -1491,8 +1334,10 @@
                         updateStepDisplay();
                     }
                 } else {
-                    // On last step, complete the transaction
-                    completeTransaction();
+                    if (validateCurrentStep()) {
+                        // On last step, complete the transaction
+                        completeTransaction();
+                    }
                 }
             });
             // Handle previous button click
@@ -1509,12 +1354,20 @@
                 notesError.textContent = "";
                 sectorError.classList.add("hidden");
                 sectorError.textContent = "";
+                clientError.classList.add("hidden");
+                clientError.textContent = "";
 
                 const description = document.getElementById('notes');
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
+                const client = document.getElementById('client');
                 // For step 1, validate amount
                 if (currentStep === 1) {
+                    if (!client.value) {
+                        clientError.textContent = "Veuillez sélectionner un client !";
+                        clientError.classList.remove("hidden");
+                        return false;
+                    }
                     if (!category.value) {
                         sectorError.textContent = "Veuillez sélectionner une catégorie !";
                         sectorError.classList.remove("hidden");
@@ -1522,6 +1375,7 @@
                     }
                 } else if (currentStep === 2) {
                     if (!getSafeValue(amountInput.value)) return false;
+                } else if (currentStep === 3) {
                     // Vérification description
                     if (!description.value.trim()) {
                         notesError.textContent = "La description est obligatoire !";
@@ -1540,31 +1394,32 @@
                 const description = document.getElementById('notes');
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
-                let client = document.getElementById('client');
+                const client = document.getElementById('client');
                 nextBtn.innerHTML = `
                             <div class="flex items-center justify-center">
                                 <div class="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
                             </div>
                         `;
-                const formData = {
-                    "nid": id,
-                    "title": "transaction",
-                    "entity_type": "node",
-                    "bundle": "transactions",
-                    "field_category": parseInt(category.value),
-                    "body": "<h1>transaction</h1>",
-                    "field_description": description.value.trim(),
-                    "uid": 1,
-                    "status": 1,
-                    "field_amount": value,
-                    "field_type": type,
-                    "field_date": datetimeInput.value,
-                    "field_client": client.value
+                if (id) {
+                    const formData = {
+                        "nid": id,
+                        "title": "transaction",
+                        "entity_type": "node",
+                        "bundle": "transactions",
+                        "field_category": parseInt(category.value),
+                        "body": "<h1>transaction</h1>",
+                        "field_description": description.value.trim(),
+                        "uid": 1,
+                        "status": 1,
+                        "field_amount": value,
+                        "field_type": type,
+                        "field_date": datetimeInput.value,
+                        "field_client": client.value
+                    }
+                    updateTransaction(id, formData);
+                } else {
+                    addTransaction(value);
                 }
-                if (base64File) {
-                    formData.field_evidence = base64File
-                }
-                updateTransaction(id, formData);
 
                 amountInput.value = "";
                 updatePreviewValues();
@@ -1580,19 +1435,15 @@
                     const clients = dataArray.rows;
                     allClients = clients;
                     const select = document.getElementById("client");
-                    const filterClientSelect = document.getElementById("filterClientSelect");
                     // Vider les options existantes sauf la première
                     select.innerHTML = '<option value="">Sélectionnez un client</option>';
-                    filterClientSelect.innerHTML = '<option value="">Tous les clients</option>';
 
                     // Ajouter les clients depuis l'API
                     clients.forEach((client) => {
-                        const option1 = document.createElement("option");
-                        option1.value = client.nid// option value formatée
-                        option1.textContent = client.field_name;
-                        const option2 = option1.cloneNode(true);
-                        select.appendChild(option1);
-                        filterClientSelect.appendChild(option2);
+                        const option = document.createElement("option");
+                        option.value = client.nid// option value formatée
+                        option.textContent = client.field_name;
+                        select.appendChild(option);
                     });
                 } catch (error) {
                     console.error("Erreur lors du chargement des clients :", error);
@@ -1600,23 +1451,37 @@
             }
             loadClients();
 
+            // Tabs handler
+            function showTab(activeTab, activeContent, inactiveTab, inactiveContent) {
+                activeTab.classList.add('bg-primary', 'text-white');
+                activeTab.classList.remove('text-gray-600');
+                inactiveTab.classList.remove('bg-primary', 'text-white');
+                inactiveTab.classList.add('text-gray-600');
+
+                activeContent.classList.remove('hidden');
+                inactiveContent.classList.add('hidden');
+            }
+
+            tabNouvelle.addEventListener('click', function () {
+                showTab(tabNouvelle, contentNouvelle, tabHistorique, contentHistorique);
+                bottomSumary.classList.add('hidden')
+            });
+
+            tabHistorique.addEventListener('click', function () {
+                showTab(tabHistorique, contentHistorique, tabNouvelle, contentNouvelle);
+                bottomSumary.classList.remove('hidden')
+            });
+
+
             window.showDeleteModal = showDeleteModal;
-
             amountInput.addEventListener("input", updatePreviewValues);
-
-            getTransactionsRange("today");
-
-            (async function () {
-                await fetchAllTransactions(queryBuilder[0].first);
-                await fetchTransactions(queryBuilder[0].first);
-            })();
         });
     </script>
 
     <script id="categories">
         document.addEventListener("DOMContentLoaded", function () {
             const API_BASE_CATEGORIES =
-                "https://miandrilala.online/api/v2/taxonomy_term/category";
+                "https://miandrilala.online/api/v2/taxonomy_term/category?fields[]=tid&fields[]=name&sort[val]=name&sort[op]=asc";
 
             async function loadSectors() {
                 try {
@@ -1625,21 +1490,15 @@
                     const categories = dataArray.rows;
 
                     const select = document.getElementById("sector");
-                    const filterCategorySelect = document.getElementById("filterCategorySelect");
-
                     // Vider les options existantes sauf la première
                     select.innerHTML = '<option value="">Sélectionnez un secteur</option>';
-                    filterCategorySelect.innerHTML = '<option value="">Tous les categories</option>';
 
                     // Ajouter les catégories depuis l'API
                     categories.forEach((cat) => {
-                        const option1 = document.createElement("option");
-                        option1.value = cat.tid// option value formatée
-                        option1.textContent = cat.name;
-                        const option2 = option1.cloneNode(true);
-
-                        select.appendChild(option1);
-                        filterCategorySelect.appendChild(option2);
+                        const option = document.createElement("option");
+                        option.value = cat.tid// option value formatée
+                        option.textContent = cat.name;
+                        select.appendChild(option);
                     });
                 } catch (error) {
                     console.error("Erreur lors du chargement des secteurs :", error);
@@ -1647,21 +1506,8 @@
             }
             loadSectors();
         });
+    </script>
 
-    </script>
-    <script id="filterToggle">
-        document.addEventListener('DOMContentLoaded', function () {
-            const filterBtn = document.getElementById('filterBtn');
-            const filterPanel = document.getElementById('filterPanel');
-            const closeFilterBtn = document.getElementById('closeFilterBtn');
-            filterBtn.addEventListener('click', function () {
-                filterPanel.classList.add('active');
-            });
-            closeFilterBtn.addEventListener('click', function () {
-                filterPanel.classList.remove('active');
-            });
-        });
-    </script>
     <script id="mobileSidebarScript">
         document.addEventListener("DOMContentLoaded", function () {
             const sidebar = document.querySelector("aside");
