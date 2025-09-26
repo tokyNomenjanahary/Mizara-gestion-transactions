@@ -92,6 +92,10 @@
             transform: rotate(180deg);
         }
 
+        .fs-c-7 {
+            font-size: 0.7rem;
+        }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -328,14 +332,14 @@
                                             <label class="flex items-center gap-2">
                                                 <input type="radio" name="transaction_type" value="Entrée" checked
                                                     class="text-primary focus:ring-primary">
-                                                <span>Entrée</span>
+                                                <span>RMB payé</span>
                                             </label>
                                         </div>
                                         <div>
                                             <label class="flex items-center gap-2">
                                                 <input type="radio" name="transaction_type" value="Sortie"
                                                     class="text-primary focus:ring-primary">
-                                                <span>Sortie</span>
+                                                <span>Ar reçue</span>
                                             </label>
                                         </div>
                                     </div>
@@ -343,6 +347,24 @@
                             </div>
                         </div>
                         <div id="step2" class="step-content hidden">
+                            <div class="bg-white mb-6">
+                                <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                                    Taux de change
+                                </h2>
+                            </div>
+                            <div class="mb-4">
+                                <label for="exchange" class="block text-sm font-medium text-gray-700 mb-1">
+                                    valeur (<span>taux de change actuel : </span><span id="currentRate"></span>)
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="exchange" min="0"
+                                        class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
+                                        placeholder="Entrez le montant" />
+                                </div>
+                                <p id="exchangeError" class="text-red-500 text-xs mt-2 hidden"></p>
+                            </div>
+                        </div>
+                        <div id="step3" class="step-content hidden">
                             <div class="bg-white mb-6">
                                 <h2 class="text-xl font-semibold text-gray-900 mb-6">
                                     Montant & Description
@@ -379,7 +401,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="step3" class="step-content hidden">
+                        <div id="step4" class="step-content hidden">
                             <div class="bg-white mb-6">
                                 <h2 class="text-xl font-semibold text-gray-900 mb-6">
                                     Ajouter une preuve
@@ -518,18 +540,18 @@
         <!-- Bottom Summary -->
         <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0 hidden"
             id="bottomSumary">
-            <div class="px-4 py-3">
+            <div class="px-4 py-3 text-sm">
                 <div class="flex justify-between items-center mb-1" id="total-in">
                     <span class="text-sm text-gray-600">Total entrée</span>
-                    <span id="summary-positive" class="font-medium text-green-600">0 Ar</span>
+                    <span id="summary-positive" class="text-green-600">0 Ar</span>
                 </div>
                 <div class="flex justify-between items-center mb-1" id="total-out">
                     <span class="text-sm text-gray-600">Total sortie</span>
-                    <span id="summary-negative" class="font-medium text-secondary">0 Ar</span>
+                    <span id="summary-negative" class="text-secondary">0 Ar</span>
                 </div>
                 <div class="flex justify-between items-center" id="balance-available">
-                    <span class="text-sm font-medium text-gray-700">Solde disponible</span>
-                    <span id="summary-net" class="font-semibold text-primary">0 Ar</span>
+                    <span class="text-sm text-gray-700">Solde disponible</span>
+                    <span id="summary-net" class="text-primary">0 Ar</span>
                 </div>
             </div>
         </div>
@@ -547,6 +569,8 @@
             const notesError = document.getElementById("notesError");
             const sectorError = document.getElementById("sectorError");
             const clientError = document.getElementById("clientError");
+            const exchangeError = document.getElementById("exchangeError");
+
             // qr
             const qrInput = document.getElementById("qr-input");
             const qrPreview = document.getElementById("qr-preview");
@@ -594,17 +618,21 @@
             const API_BASE_CLIENTS =
                 "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
             let allClients = [];
+            // exchanges variable
+            const API_BASE_EXCHANGE =
+                "https://miandrilala.online/api/v2/taxonomy_term/exchange?sort[val]=tid&sort[op]=desc";
 
             // Step configuration
             const nextBtn = document.getElementById("nextBtn");
             const originalBtnText = nextBtn.textContent;
             let currentStep = 1;
-            const totalSteps = 3;
+            const totalSteps = 4;
             // Step titles in French
             const stepTitles = {
                 1: "Devise & Montant",
-                2: "Données financières",
-                3: "Photo de l’évidence",
+                2: "cours d'échange",
+                3: "Données financières",
+                4: "Photo de l’évidence",
             };
 
 
@@ -790,7 +818,6 @@
                 if (totalPages == pageNumber || totalItems < 10) {
                     loadMoreBtn.classList.add('hidden');
                 }
-
                 transactions.forEach(t => {
                     let clientName = searchClient(t.field_client);
                     const description = t.field_description;
@@ -806,8 +833,8 @@
                             <div class="transaction-row px-4 py-3 cursor-pointer" data-id="${t.nid}" data-date="2024-01-15"
                                 data-type="expense" data-amount="1250">
                                 <div class="grid grid-cols-12 gap-2 items-center">
-                                    <div class="col-span-3">
-                                        <div class="text-sm text-gray-900">${t.field_date ? formatDate(t.field_date) : "Pas de date"}</div>
+                                    <div class="col-span-3 fs-c-7">
+                                        <div class="text-gray-900">${t.field_date ? formatDate(t.field_date) : "Pas de date"}</div>
                                         <div class="text-xs text-gray-500 hidden">2024</div>
                                     </div>
                                     <div class="col-span-5">
@@ -817,21 +844,23 @@
                                             </div>
                                             <div>
                                                 <div class="text-sm text-gray-900">
-                                                    <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
-                                ${t.field_category.title}</span>
+                                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset text-center
+                                                        ${t.field_type == "Entrée" ? "text-green-400 ring-green-500/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}">
+                                                    ${t.field_category.title}</span>
+                                                    <span
+                                                        class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse hidden
+                                                        ${t.field_type == "Entrée" ? "text-green-400 ring-green-500/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}">
+                                                        ${t.field_type.charAt(0)}</span> 
                                                 </div>
                                                 <div class="text-xs text-gray-500 ms-1 mt-2 hidden">${shortDesc}</div>
                                                 <div class="text-xs text-gray-500 ms-1 mt-2">${clientName}</div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-span-4 text-right">
-                                        <span
-                                class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
-                                ${t.field_type == "Entrée" ? "text-green-400 ring-green-500/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}">
-                                ${t.field_type}</span> 
-                                        <div class="text-sm font-medium mt-2 ${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_amount)}</div>
-                                        <div class="text-xs hidden ${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${t.field_type}</div>
+                                    <div class="col-span-4 text-right fs-c-7">
+                                        <div class="text-gray-500">Cours: ${t.field_cours}</div>
+                                        <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${t.field_montant_rmb} RMB</div>
+                                        <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_amount)}</div>
                                     </div>
                                 </div>
                             </div>`;
@@ -955,6 +984,10 @@
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
                 const client = document.getElementById('client');
+                const exchange = document.getElementById('exchange').value;
+                let amounRmb = type === "Entrée"
+                    ? amount * parseFloat(exchange)
+                    : amount / parseFloat(exchange);
                 const newTransaction = {
                     "title": "transaction",
                     "entity_type": "node",
@@ -968,8 +1001,11 @@
                     "field_evidence": base64File,
                     "field_type": type,
                     "field_date": datetimeInput.value,
-                    "field_client": client.value
+                    "field_client": client.value,
+                    "field_cours": parseFloat(exchange),
+                    "field_montant_rmb": parseFloat(amounRmb),
                 }
+
                 try {
                     const res = await fetch(`${API_ADD_TRANSACTION}`, {
                         method: "POST",
@@ -1037,6 +1073,7 @@
                     let client = document.getElementById('client');
                     let amount = document.getElementById('amount');
                     let id = document.getElementById('tr-id');
+                    let exchange = document.getElementById('exchange');
                     description.value = transaction.field_description;
                     if (transaction.field_type == "Sortie") {
                         document.querySelector('input[name="transaction_type"][value="Sortie"]').checked = true;
@@ -1055,6 +1092,7 @@
                     client.value = transaction.field_client;
                     amount.value = transaction.field_amount;
                     id.value = transaction.nid;
+                    exchange.value = parseInt(transaction.field_cours);
                     window.scrollTo({
                         top: 0,
                         behavior: "smooth"
@@ -1403,11 +1441,14 @@
                 sectorError.textContent = "";
                 clientError.classList.add("hidden");
                 clientError.textContent = "";
+                exchangeError.classList.add("hidden");
+                exchangeError.textContent = "";
 
                 const description = document.getElementById('notes');
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
                 const client = document.getElementById('client');
+                const exchange = document.getElementById('exchange');
                 // For step 1, validate amount
                 if (currentStep === 1) {
                     if (!client.value) {
@@ -1421,6 +1462,12 @@
                         return false;
                     }
                 } else if (currentStep === 2) {
+                    if (!exchange.value) {
+                        exchangeError.textContent = "Entrez un montant";
+                        exchangeError.classList.remove("hidden");
+                        return false;
+                    }
+                } else if (currentStep === 3) {
                     if (!getSafeValue(amountInput.value)) return false;
                     // Vérification description
                     if (!description.value.trim()) {
@@ -1441,6 +1488,13 @@
                 const type = document.querySelector('input[name="transaction_type"]:checked')?.value;
                 const category = document.getElementById('sector');
                 const client = document.getElementById('client');
+                const exchange = document.getElementById('exchange').value;
+                let amounRmb = 0;
+                if (type === "Entrée") {
+                    amounRmb = value * parseFloat(exchange);
+                } else {
+                    amounRmb = value / parseFloat(exchange);
+                }
                 nextBtn.innerHTML = `
                             <div class="flex items-center justify-center">
                                 <div class="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
@@ -1461,7 +1515,9 @@
                         "field_amount": value,
                         "field_type": type,
                         "field_date": datetimeInput.value,
-                        "field_client": client.value
+                        "field_client": client.value,
+                        "field_cours": parseFloat(exchange),
+                        "field_montant_rmb": parseFloat(amounRmb),
                     }
                     if (base64File) {
                         formData.field_evidence = base64File
@@ -1500,6 +1556,20 @@
                 }
             }
             loadClients();
+
+            // fetch all exchanges value
+            async function loadExchanges() {
+                try {
+                    const res = await fetch(API_BASE_EXCHANGE);
+                    const dataArray = await res.json();
+                    const exchange = dataArray.rows[0];
+                    document.getElementById("exchange").value = exchange.name;
+                    document.getElementById("currentRate").textContent = exchange.name;
+                } catch (error) {
+                    console.error("Erreur lors du chargement des données :", error);
+                }
+            }
+            loadExchanges();
 
             // Tabs handler
             function showTab(activeTab, activeContent, inactiveTab, inactiveContent) {
