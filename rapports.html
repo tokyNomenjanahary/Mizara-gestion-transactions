@@ -523,7 +523,6 @@
                         "field_date": dateRapprot.value,
                         "field_description": rDescription.value,
                     }
-                    console.log(newReport);
                     const res = await fetch(`${API_BASE}`, {
                         method: "POST",
                         body: JSON.stringify(newReport),
@@ -851,7 +850,6 @@
                 if (rapport) {
                     deletingId = id;
                     document.getElementById('deleteModal').classList.remove('hidden');
-                    console.log(deletingId);
                 }
             }
 

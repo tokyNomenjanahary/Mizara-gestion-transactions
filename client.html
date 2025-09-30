@@ -233,8 +233,8 @@
             </div>
 
             <!-- Client List -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-2">
+                <div class="flex items-center justify-between mb-6 ms-2 mt-1">
                     <h2 class="text-xl font-semibold text-gray-900">Tout les clients</h2>
                 </div>
 
@@ -248,7 +248,8 @@
 
                     </div>
                     <p class="text-gray-500">Aucun client pour le moment</p>
-                    <p class="text-sm text-gray-400 mt-1">Ajoutez votre premier client en utilisant le formulaire ci-dessus</p>
+                    <p class="text-sm text-gray-400 mt-1">Ajoutez votre premier client en utilisant le formulaire
+                        ci-dessus</p>
                 </div>
             </div>
         </div>
@@ -344,23 +345,24 @@
             emptyState.classList.add('hidden');
 
             container.innerHTML = clients.map(client => `
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                onclick="getHistory(${client.nid}, '${client.field_name}')" >
                 <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg mr-3">
+                    <div class="w-7 h-7 flex items-center justify-center bg-primary/10 rounded-lg mr-3">
                         <i class="ri-user-line text-primary"></i>
                     </div>
-                    <span class="font-medium text-gray-900">${client.field_name}</span>
+                    <span class="font-medium text-gray-900 text-sm">${client.field_name}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button 
-                        onclick="editClient(${client.nid})" 
+                        onclick="event.stopPropagation(); editClient(${client.nid})" 
                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                         title="Modifier le client"
                     >
                         <i class="ri-edit-line ri-sm"></i>
                     </button>
                     <button 
-                        onclick="showDeleteModal(${client.nid})" 
+                        onclick="event.stopPropagation(); showDeleteModal(${client.nid})" 
                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Supprimer le client"
                     >
@@ -404,6 +406,15 @@
                 document.getElementById('editClientName').value = client.field_name;
                 document.getElementById('editModal').classList.remove('hidden');
             }
+        }
+
+        function getHistory(id, name) {
+            let item = {
+                id: id,
+                name: name
+            };
+            localStorage.setItem('items', JSON.stringify(item));
+            window.location = 'file:///home/alice/Documents/mvola/gestion-git/update-history.html';
         }
 
         async function updateClient(id, name) {
@@ -455,6 +466,7 @@
 
         window.editClient = editClient;
         window.showDeleteModal = showDeleteModal;
+        window.getHistory = getHistory;
 
         // Charger les clients
         fetchClients();

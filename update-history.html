@@ -1181,7 +1181,6 @@
                 } else {
                     urlQuery = API_TRANSACTION + "?fields[]=title&fields[]=created&fields[]=field_evidence&fields[]=field_category&fields[]=field_amount&fields[]=nid&fields[]=field_type&fields[]=field_description&fields[]=field_date&sort[val]=nid&sort[op]=desc" + req + "&pager=" + pageNumber + "&offset=10";
                 }
-
                 try {
                     const res = await fetch(`${urlQuery}`);
                     const dataArray = await res.json();
@@ -1207,6 +1206,7 @@
                     console.error("Erreur de chargement :", e);
                     throw e;
                 } finally {
+                    localStorage.removeItem('items');
                     hideLoader();
                 }
             }
@@ -1233,11 +1233,6 @@
                 let start, end;
 
                 if (type == "All") {
-                    // if (queryBuilder.length > 1) {
-                    //     fetchTransactions(concatQueries(queryBuilder));
-                    // } else {
-                    //     fetchTransactions('All');
-                    // }
                     pushWithKey(queryBuilder, "first", "")
                     return null;
                 }
@@ -1374,7 +1369,6 @@
             }
 
             function showEditStatusModal(id, status = "Draft") {
-                console.log(id, status);
                 let idTr = document.getElementById('idTr');
                 idTr.value = id;
                 // Cherche l'input radio qui a comme value la valeur du paramètre "status"
@@ -1956,11 +1950,29 @@
             amountInput.addEventListener("input", updatePreviewValues);
 
             getTransactionsRange("today");
-
-            (async function () {
-                await fetchAllTransactions(queryBuilder[0].first);
-                await fetchTransactions(queryBuilder[0].first);
-            })();
+            const ClientItemsRapport = JSON.parse(localStorage.getItem('items'));
+            if (ClientItemsRapport) {
+                (async function () {
+                    queryBuilder = [
+                        {
+                            "category": "&filters[field_category][val]=27&filters[field_client][val]=" + ClientItemsRapport.id
+                        },
+                        {
+                            "first": ""
+                        }
+                    ]
+                    handleFilterClick("filter-all", "All")
+                    document.getElementById('active-category').textContent = "Suivi payment";
+                    document.getElementById('active-category').classList.remove('hidden');
+                    document.getElementById('active-client').textContent = ClientItemsRapport.name;
+                    document.getElementById('active-client').classList.remove('hidden');
+                })();
+            } else {
+                (async function () {
+                    await fetchAllTransactions(queryBuilder[0].first);
+                    await fetchTransactions(queryBuilder[0].first);
+                })();
+            }
         });
     </script>
 
