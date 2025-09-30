@@ -376,10 +376,6 @@
                                         <input type="text" id="amount"
                                             class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-lg"
                                             placeholder="Entrez le montant" />
-                                        <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <span class="text-gray-500">Ar</span>
-                                        </div>
                                     </div>
                                     <p id="amounterror" class="text-red-500 text-xs mt-2 hidden"></p>
                                 </div>
@@ -538,19 +534,19 @@
         </div>
 
         <!-- Bottom Summary -->
-        <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0 hidden"
+        <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0 fs-c-7 hidden"
             id="bottomSumary">
-            <div class="px-4 py-3 text-sm">
+            <div class="px-4 py-3">
                 <div class="flex justify-between items-center mb-1" id="total-in">
-                    <span class="text-sm text-gray-600">Total entrée</span>
+                    <span class="text-gray-600">Total entrée</span>
                     <span id="summary-positive" class="text-green-600">0 Ar</span>
                 </div>
                 <div class="flex justify-between items-center mb-1" id="total-out">
-                    <span class="text-sm text-gray-600">Total sortie</span>
+                    <span class="text-gray-600">Total sortie</span>
                     <span id="summary-negative" class="text-secondary">0 Ar</span>
                 </div>
                 <div class="flex justify-between items-center" id="balance-available">
-                    <span class="text-sm text-gray-700">Solde disponible</span>
+                    <span class="text-gray-700">Solde disponible</span>
                     <span id="summary-net" class="text-primary">0 Ar</span>
                 </div>
             </div>
@@ -762,12 +758,28 @@
                 document.getElementById(id).addEventListener("click", () => handleFilterClick(id, value));
             });
 
-            function formatCurrency(amount) {
-                return (
-                    new Intl.NumberFormat("fr-MG", {
-                        maximumFractionDigits: 0,
-                    }).format(amount) + " Ar"
-                );
+            function formatCurrency(amount, currency = "AR") {
+                let options = {
+                    maximumFractionDigits: 0,
+                };
+
+                if (currency === "AR") {
+                    // Ariary
+                    return (
+                        new Intl.NumberFormat("fr-MG", options).format(amount) + " Ar"
+                    );
+                } else if (currency === "RMB") {
+                    // Yuan chinois (RMB)
+                    return (
+                        new Intl.NumberFormat("zh-CN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                        }).format(amount) + " RMB"
+                    );
+                } else {
+                    // fallback générique
+                    return new Intl.NumberFormat(undefined, options).format(amount);
+                }
             }
 
             function updatePreviewValues() {
@@ -778,17 +790,25 @@
                 let pos;
                 let neg;
                 let total;
+                let posRmb;
+                let negRmb;
+                let totalRmb;
                 if (data) {
                     pos = data.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     neg = data.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    posRmb = data.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
+                    negRmb = data.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
                 } else {
                     pos = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     neg = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
+                    posRmb = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
+                    negRmb = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
                 }
                 total = pos - neg;
-                summaryNetEl.textContent = formatCurrency(total);
-                summaryPositive.textContent = formatCurrency(pos);
-                summaryNegative.textContent = formatCurrency(neg);
+                totalRmb = posRmb - negRmb;
+                summaryNetEl.textContent = formatCurrency(totalRmb, "RMB") + " / " + formatCurrency(total, "AR");
+                summaryPositive.textContent = formatCurrency(posRmb, "RMB") + " / " + formatCurrency(pos, "AR");
+                summaryNegative.textContent = formatCurrency(negRmb, "RMB") + " / " + formatCurrency(neg, "AR");
             }
 
             function renderTransactions() {
@@ -820,12 +840,12 @@
                 }
                 transactions.forEach(t => {
                     let clientName = searchClient(t.field_client);
-                    const description = t.field_description;
-                    const maxLength = 15;
+                    // const description = t.field_description;
+                    // const maxLength = 15;
 
-                    const shortDesc = description.length > maxLength
-                        ? description.substring(0, maxLength) + "..."
-                        : description;
+                    // const shortDesc = description.length > maxLength
+                    //     ? description.substring(0, maxLength) + "..."
+                    //     : description;
 
                     const div = document.createElement("div");
                     div.innerHTML = `
@@ -833,11 +853,11 @@
                             <div class="transaction-row px-4 py-3 cursor-pointer" data-id="${t.nid}" data-date="2024-01-15"
                                 data-type="expense" data-amount="1250">
                                 <div class="grid grid-cols-12 gap-2 items-center">
-                                    <div class="col-span-3 fs-c-7">
+                                    <div class="col-span-2 fs-c-7">
                                         <div class="text-gray-900">${t.field_date ? formatDate(t.field_date) : "Pas de date"}</div>
                                         <div class="text-xs text-gray-500 hidden">2024</div>
                                     </div>
-                                    <div class="col-span-5">
+                                    <div class="col-span-4">
                                         <div class="flex items-center gap-2">
                                             <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center hidden justify-center">
                                                 <i class="ri-shopping-cart-line text-red-600 text-sm"></i>
@@ -852,15 +872,17 @@
                                                         ${t.field_type == "Entrée" ? "text-green-400 ring-green-500/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}">
                                                         ${t.field_type.charAt(0)}</span> 
                                                 </div>
-                                                <div class="text-xs text-gray-500 ms-1 mt-2 hidden">${shortDesc}</div>
                                                 <div class="text-xs text-gray-500 ms-1 mt-2">${clientName}</div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-span-4 text-right fs-c-7">
-                                        <div class="text-gray-500">Cours: ${t.field_cours}</div>
-                                        <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${t.field_montant_rmb} RMB</div>
-                                        <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_amount)}</div>
+                                    <div class="col-span-6 text-right fs-c-7">
+                                        <div class="text-gray-500">
+                                            <span class="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-500 ring-1 ring-inset ring-purple-400/20 text-center">
+                                                Draft</span>
+                                        </div>
+                                        <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_montant_rmb, "RMB")} / ${t.field_cours}</div>
+                                        <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_amount, "AR")}</div>
                                     </div>
                                 </div>
                             </div>`;
@@ -985,9 +1007,16 @@
                 const category = document.getElementById('sector');
                 const client = document.getElementById('client');
                 const exchange = document.getElementById('exchange').value;
-                let amounRmb = type === "Entrée"
-                    ? amount * parseFloat(exchange)
-                    : amount / parseFloat(exchange);
+                let field_amount, field_montant_rmb;
+
+                if (type === "Entrée") {
+                    field_amount = parseFloat(amount * exchange);
+                    field_montant_rmb = amount;
+                } else {
+                    field_amount = amount;
+                    field_montant_rmb = parseFloat(amount / exchange);
+                }
+                
                 const newTransaction = {
                     "title": "transaction",
                     "entity_type": "node",
@@ -997,14 +1026,14 @@
                     "field_description": description,
                     "uid": 1,
                     "status": 1,
-                    "field_amount": amount,
+                    "field_amount": field_amount,
                     "field_evidence": base64File,
                     "field_type": type,
                     "field_date": datetimeInput.value,
                     "field_client": client.value,
                     "field_cours": parseFloat(exchange),
-                    "field_montant_rmb": parseFloat(amounRmb),
-                }
+                    "field_montant_rmb": field_montant_rmb,
+                };
 
                 try {
                     const res = await fetch(`${API_ADD_TRANSACTION}`, {
@@ -1074,11 +1103,15 @@
                     let amount = document.getElementById('amount');
                     let id = document.getElementById('tr-id');
                     let exchange = document.getElementById('exchange');
-                    description.value = transaction.field_description;
+                    if (transaction.field_description) {
+                        description.value = transaction.field_description;
+                    }
                     if (transaction.field_type == "Sortie") {
                         document.querySelector('input[name="transaction_type"][value="Sortie"]').checked = true;
+                        amount.value = transaction.field_amount;
                     } else {
                         document.querySelector('input[name="transaction_type"][value="Entrée"]').checked = true;
+                        amount.value = transaction.field_montant_rmb;
                     }
 
                     if (transaction.field_evidence) {
@@ -1090,7 +1123,6 @@
                     datetimeInput.value = transaction.field_date;
                     category.value = transaction.field_category.tid;
                     client.value = transaction.field_client;
-                    amount.value = transaction.field_amount;
                     id.value = transaction.nid;
                     exchange.value = parseInt(transaction.field_cours);
                     window.scrollTo({
@@ -1144,7 +1176,7 @@
                             <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3  ${transaction.field_type == "Entrée" ? "bg-green-100" : "bg-red-100"}">
                                 <i class="ri-money-dollar-circle-line text-xl ${transaction.field_type == "Entrée" ? "text-green-500" : "text-red-500"}"></i>
                             </div>
-                            <div class="text-2xl font-semibold mb-1 ${transaction.field_type == "Entrée" ? "text-green-500" : "text-red-500"}">${formatCurrency(transaction.field_amount)}</div>
+                            <div class="text-2xl font-semibold mb-1 ${transaction.field_type == "Entrée" ? "text-green-500" : "text-red-500"}">${formatCurrency(transaction.field_amount, "AR")}</div>
                             <div class="flex justify-start items-center gap-2">
                                 <button class="edit-btn w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" data-id="${transaction.nid}">
                                     <i class="ri-edit-line text-blue-600 text-sm"></i>
@@ -1163,6 +1195,11 @@
                                 <span class="text-sm text-gray-600">Type</span>
                                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
                                     ${transaction.field_type == "Entrée" ? "text-green-400 ring-green-400/20 bg-green-400/10" : "text-red-400 ring-red-400/20 bg-red-400/10"}"">${transaction.field_type}</span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Status</span>
+                                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
+                                    text-purple-400 ring-purple-400/20 bg-purple-400/10">Draft</span>
                             </div>
                             <div class="flex justify-between py-2 border-b border-gray-100 items-center">
                                 <span class="text-sm text-gray-600">Date du transaction</span>
@@ -1184,19 +1221,22 @@
                                     text-green-400 ring-green-500/20 bg-green-400/10">Payé</span>
                             </div>-->
                         </div>
-                        <div class="space-y-2">
-                            <div class="text-sm text-gray-600 mt-4">Description</div>
-                            <div class="w-full p-3 pt-1 text-sm text-gray-900">${transaction.field_description}</div>
-                        </div>
+                                ${transaction.field_description
+                                    ? `<div class="space-y-2">
+                                            <div class="text-sm text-gray-600 mt-4">Description</div>
+                                            <div class="w-full p-3 pt-1 text-sm text-gray-900">${transaction.field_description}</div>
+                                        </div>`
+                                    : ``
+                                }
                         <div class="flex flex-col mt-0 gap-3 pb-3 border-b border-gray-100">
-                            <span class="text-sm text-gray-600">Évidence associée</span>
+                            <span class="text-sm text-gray-600 mt-4">Évidence associée</span>
                             <div class="flex flex-wrap justify-center items-center gap-2">
                                 ${transaction.field_evidence?.url
-                        ? `<div class="w-full md:w-1/2 flex justify-center">
-                                            <img src="${transaction.field_evidence.url}" alt="Image" class="w-1/4 rounded-2xl">
-                                    </div>`
-                        : `<span class="text-gray-400 text-sm">Aucune image</span>`
-                    }
+                                    ? `<div class="w-full md:w-1/2 flex justify-center">
+                                                        <img src="${transaction.field_evidence.url}" alt="Image" class="w-1/4 rounded-2xl">
+                                                </div>`
+                                    : `<span class="text-gray-400 text-sm">Aucune image</span>`
+                                }
                             </div>
                         </div>
                     </div>`
@@ -1470,11 +1510,11 @@
                 } else if (currentStep === 3) {
                     if (!getSafeValue(amountInput.value)) return false;
                     // Vérification description
-                    if (!description.value.trim()) {
-                        notesError.textContent = "La description est obligatoire !";
-                        notesError.classList.remove("hidden");
-                        return false;
-                    }
+                    // if (!description.value.trim()) {
+                    //     notesError.textContent = "La description est obligatoire !";
+                    //     notesError.classList.remove("hidden");
+                    //     return false;
+                    // }
                 }
                 return true;
             }
@@ -1489,11 +1529,14 @@
                 const category = document.getElementById('sector');
                 const client = document.getElementById('client');
                 const exchange = document.getElementById('exchange').value;
-                let amounRmb = 0;
+                let field_amount, field_montant_rmb;
+
                 if (type === "Entrée") {
-                    amounRmb = value * parseFloat(exchange);
+                    field_amount = parseFloat(value * exchange);
+                    field_montant_rmb = value;
                 } else {
-                    amounRmb = value / parseFloat(exchange);
+                    field_amount = value;
+                    field_montant_rmb = parseFloat(value / exchange);
                 }
                 nextBtn.innerHTML = `
                             <div class="flex items-center justify-center">
@@ -1512,12 +1555,12 @@
                         "field_description": description.value.trim(),
                         "uid": 1,
                         "status": 1,
-                        "field_amount": value,
+                        "field_amount": field_amount,
                         "field_type": type,
                         "field_date": datetimeInput.value,
                         "field_client": client.value,
                         "field_cours": parseFloat(exchange),
-                        "field_montant_rmb": parseFloat(amounRmb),
+                        "field_montant_rmb": field_montant_rmb,
                     }
                     if (base64File) {
                         formData.field_evidence = base64File
