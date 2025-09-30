@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion Ariary</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: "#4F46E5", secondary: "#8B5CF6" },
+                    borderRadius: {
+                        none: "0px",
+                        sm: "4px",
+                        DEFAULT: "8px",
+                        md: "12px",
+                        lg: "16px",
+                        xl: "20px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        full: "9999px",
+                        button: "8px",
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" />
+    <style>
+        :where([class^="ri-"])::before {
+            content: "\f3c2";
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            /* font-size: 0.875rem; */
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .transaction-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .scrollBar-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filter-panel {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .filter-panel.active {
+            transform: translateY(0);
+        }
+
+        .transaction-row {
+            transition: all 0.2s ease;
+        }
+
+        .transaction-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .sort-indicator {
+            transition: transform 0.2s ease;
+        }
+
+        .sort-asc {
+            transform: rotate(0deg);
+        }
+
+        .sort-desc {
+            transform: rotate(180deg);
+        }
+
+        .fs-c-7 {
+            font-size: 0.7rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+    <script>
+        const API_BASE = "https://miandrilala.online/crud/save";
+        const API_RAPPORT = "https://miandrilala.online/api/v2/node/rapports"
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen relative">
+    <!-- <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div> -->
+    <!-- loader -->
+    <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm hidden"
+        style="z-index: 999999;">
+        <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" style="z-index: 99;">
+        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 flex items-center justify-center bg-red-100 rounded-full mr-4">
+                    <i class="ri-error-warning-line text-red-600 ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Supprimer la transaction</h3>
+                    <p class="text-sm text-gray-600">Cette action ne peut pas être annulée</p>
+                </div>
+            </div>
+            <p class="text-gray-700 mb-6">Êtes-vous sûr de vouloir supprimer cette rapport?</p>
+            <div class="flex space-x-3">
+                <button type="button" id="cancelDelete"
+                    class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors !rounded-button whitespace-nowrap">
+                    Annuler
+                </button>
+                <button type="button" id="confirmDelete"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors !rounded-button whitespace-nowrap">
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction modal for Report form -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
+            <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">Rapport</h2>
+                    <button id="closeReportModal" class="w-8 h-8 flex items-center justify-center">
+                        <i class="ri-close-line text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 space-y-6">
+                <div id="reportForm" class="space-y-6">
+                    <div>
+                        <div class="space-y-4 mb-4">
+                            <div class="flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Catégorie</span>
+                                <span id="rCategorie"
+                                    class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
+
+                                </span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-100">
+                                <span class="text-sm text-gray-600">Client :</span>
+                                <div id="rClientList">
+
+                                </div>
+                            </div>
+                            <div class=" flex justify-between py-2 border-b border-gray-100 items-center">
+                                <span class="text-sm text-gray-600">Solde</span>
+                                <span class="text-sm text-primary" id="rSoldeTotal"></span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="mb-4">
+                                <label class="block mb-2 text-sm text-gray-600" for="dateRapprot">Date</label>
+                                <input type="date" id="dateRapprot"
+                                    class="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none">
+                            </div>
+                            <div class="mb-4">
+                                <label for="rDescription" class="block text-sm text-gray-600 mb-1">Description</label>
+                                <div class="relative">
+                                    <textarea rows="3" id="rDescription" placeholder="Description ..."
+                                        class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"></textarea>
+                                </div>
+                                <p id="rDescriptionError" class="text-red-500 text-xs mt-2 hidden"></p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            <button id="saveReport"
+                                class="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors cursor-pointer !rounded-button">Enregistrez
+                                les modifications</button>
+                            <button id="deleteReportBtn"
+                                class="w-min py-3 px-4 bg-red-400 text-white rounded-lg font-medium hover:bg-red-600 transition-colors cursor-pointer !rounded-button">
+                                <i class="ri-delete-bin-line text-white text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <aside
+        class="w-64 bg-white shadow-lg h-screen fixed left-0 top-0 overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-10">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
+            <button id="closeSidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-close-line"></i>
+                </div>
+            </button>
+        </div>
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary hidden">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-home-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/transaction"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-bank-card-line"></i>
+                        </div>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/categories"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-swap-line"></i>
+                        </div>
+                        <span>Catégories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/transactions/historique"
+                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-history-line"></i>
+                        </div>
+                        <span>Historiques</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <!-- Main Content -->
+    <main class="pb-4 px-4 flex-1 lg:ml-64">
+        <div class="flex items-center justify-between p-4 lg:hidden bg-white shadow-sm">
+            <button id="openSidebar" class="text-gray-500 hover:text-gray-700">
+                <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-menu-line"></i>
+                </div>
+            </button>
+            <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
+            <div class="w-5">
+                <button id="filterBtn" class="text-gray-500 hover:text-gray-700 cursor-pointer">
+                    <i class="ri-filter-3-line text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+
+        <!--     filtre     -->
+        <div id="filterPanel" class="fixed top-0 left-0 right-0 bg-white shadow-lg z-50 filter-panel">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">Filtres avancés</h2>
+                    <button id="closeFilterBtn" class="w-8 h-8 flex items-center justify-center cursor-pointer">
+                        <i class="ri-close-line text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="px-4 py-4 max-h-96 overflow-y-auto">
+                <div class="space-y-6 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Client</label>
+                        <div class="relative">
+                            <select id="filterClientSelect"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none bg-white">
+                            </select>
+                            <div
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                                <i class="ri-arrow-down-s-line text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+                        <div class="relative">
+                            <select id="filterCategorySelect"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none bg-white">
+                            </select>
+                            <div
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                                <i class="ri-arrow-down-s-line text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 py-4 border-t border-gray-200 flex gap-3">
+                <button id="applyFilters"
+                    class="flex-1 py-2.5 bg-primary text-white rounded-lg text-sm font-medium cursor-pointer !rounded-button">Appliquer</button>
+            </div>
+        </div>
+
+        <!-- Rapport List -->
+        <div class="bg-white rounded-lg shadow-md mt-4 mb-24">
+            <div class="p-5">
+                <div class="flex justify-between flex-wrap items-center mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-1">
+                        Rapport
+                    </h2>
+                    <div class="flex items-center gap-2 mb-1 hidden">
+                        <button id="active-client"
+                            class="text-xs px-3 py-1.5 rounded-full bg-yellow-400 text-white font-medium whitespace-nowrap hidden">
+                            Client
+                        </button>
+                        <button id="active-category"
+                            class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap hidden">
+                            categorie
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 flex-nowrap overflow-x-auto scrollBar-container px-2">
+                    <button id="filter-all"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        Tout
+                    </button>
+                    <button id="filter-today"
+                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap">
+                        Aujourd'hui
+                    </button>
+                    <button id="filter-week"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        cette semaine
+                    </button>
+                    <button id="filter-month"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        ce mois-ci
+                    </button>
+                    <button id="filter-in"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        Entrée
+                    </button>
+                    <button id="filter-out"
+                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        Sortie
+                    </button>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500">
+                                <div class="col-span-3 flex items-center gap-1 cursor-pointer" id="sortByDate"
+                                    data-date="desc">
+                                    <span>Date</span>
+                                    <i class="ri-arrow-up-down-line sort-indicator"></i>
+                                </div>
+                                <div class="col-span-5 flex items-center gap-1 cursor-pointer">
+                                    <span>Description</span>
+                                </div>
+                                <div class="col-span-4 flex items-center gap-1 justify-end cursor-pointer">
+                                    <span>Solde</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="rapports-container" class="divide-y divide-gray-50">
+                            <div class="rapport-row px-4 py-3 cursor-pointer" id="emptyReport">
+                                <div class="text-center py-8 text-gray-500">
+                                    <i class="ri-inbox-line text-4xl mb-2 text-gray-300"></i>
+                                    <p>Aucun rapport disponible</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-4 text-center">
+                            <button id="loadMoreBtn" class="text-primary text-sm font-medium cursor-pointer hidden">Voir
+                                plus</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script id="transaction-logic">
+        document.addEventListener("DOMContentLoaded", function () {
+            let rapports = [];
+            let rapport = null;
+            let deletingId = null;
+            const rapportsContainer = document.getElementById('rapports-container');
+            const emptyReport = document.getElementById('emptyReport');
+            const deleteReportBtn = document.getElementById('deleteReportBtn');
+            
+
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            // modal
+            const transactionModal = document.getElementById('transactionModal');
+            const transactionForm = document.getElementById('transactionForm');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            // edit form modal
+            const transactionModalEditForm = document.getElementById('transactionModalEditForm');
+            const transactionFormEditForm = document.getElementById('transactionFormEditForm');
+            const closeModalBtnEditForm = document.getElementById('closeModalBtnEditForm');
+
+            // client variable
+            const API_BASE_CLIENTS =
+                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
+            let allClients = [];
+
+            // filter dom
+            const applyFilters = document.getElementById('applyFilters');
+            const filterCategorySelect = document.getElementById('filterCategorySelect');
+            const filterClientSelect = document.getElementById('filterClientSelect');
+            const sortByDate = document.getElementById('sortByDate');
+            let pageNumber = 0;
+            let totalItems = 0;
+            let offset = 10;
+
+            const API_BASE_EXCHANGE =
+                "https://miandrilala.online/api/v2/taxonomy_term/exchange?sort[val]=tid&sort[op]=desc";
+            // filter query
+
+            let categorieFilterQuery = null;
+            let clientFilterQuery = null;
+            let PeriodQuery = null;
+            let dateFilterQuery = null;
+            let queryBuilder = [];
+
+            // Rapport
+            // const showRapportForm = document.getElementById("showRapportForm");
+            const reportModal = document.getElementById('reportModal');
+            const reportForm = document.getElementById('reportForm');
+            const closeReportModal = document.getElementById('closeReportModal');
+            const rDescription = document.getElementById('rDescription');
+            const dateRapprot = document.getElementById('dateRapprot');
+            const rCategorie = document.getElementById('rCategorie');
+            const rClientList = document.getElementById('rClientList');
+            const rSoldeTotal = document.getElementById('rSoldeTotal');
+            let rId = null;
+            const saveReport = document.getElementById('saveReport');
+            let totalReportRmb = 0;
+            let totalReportAr = 0;
+            let clientsReport = [];
+            let categorieReport = filterCategorySelect.value;
+
+            function showFormAndDetails(rapport) {
+                reportModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                rDescription.value = rapport.field_description;
+                const rawDate = rapport.field_date;
+                const onlyDate = rawDate.split("T")[0];
+                dateRapprot.value = onlyDate;
+                rCategorie.textContent = rapport.field_category.title;
+                rSoldeTotal.textContent = formatCurrency(rapport.field_total_rmb, "RMB") + " / " + formatCurrency(rapport.field_total_ariary, "AR");
+                rId = rapport.nid;
+                let str = rapport.field_client;
+                let clientsReport = str.split(",").map(item => item.trim());
+                // Vider le contenu avant d'ajouter
+                rClientList.innerHTML = "";
+                // Boucler et ajouter chaque <p>
+                clientsReport.forEach(name => {
+                    const p = document.createElement("p");
+                    p.className = "text-sm text-gray-900 capitalize";
+                    p.textContent = name;
+                    rClientList.appendChild(p);
+                });
+            }
+
+            saveReport.addEventListener('click', async function () {
+                showLoader();
+                try {
+                    const newReport = {
+                        "nid": parseInt(rId),
+                        "title": "rapport",
+                        "entity_type": "node",
+                        "bundle": "rapports",
+                        "body": "<h1>Rapport</h1>",
+                        "uid": 1,
+                        "status": 1,
+                        "field_date": dateRapprot.value,
+                        "field_description": rDescription.value,
+                    }
+                    console.log(newReport);
+                    const res = await fetch(`${API_BASE}`, {
+                        method: "POST",
+                        body: JSON.stringify(newReport),
+                    });
+
+                    if (!res.ok) throw new Error("Échec lors de la modification");
+                } catch (error) {
+                    console.error("Des erreurs sont survenu :", error);
+                } finally {
+                    reportModal.classList.add('hidden');
+                    showSuccessToast('Rapport modifier avec succès');
+                    await fetchRapports();
+                    hideLoader();
+                }
+
+            })
+
+            function handleFilterClick(filterId, filterValue) {
+                pageNumber = 0;
+                const buttons = document.querySelectorAll('[id^="filter-"]');
+
+                // Reset tous les boutons
+                buttons.forEach((btn) => {
+                    btn.classList.replace("bg-primary", "bg-gray-100");
+                    btn.classList.replace("text-white", "text-gray-600");
+                });
+
+                // Activer le bouton cliqué
+                const current = document.getElementById(filterId);
+                current.classList.replace("bg-gray-100", "bg-primary");
+                current.classList.replace("text-gray-600", "text-white");
+                scrollAtTheTopList();
+                return totalItems;
+            }
+
+            // Déclaration des filtres (id bouton => valeur du filtre)
+            const filters = {
+                "filter-all": "All",
+                "filter-in": "Entrée",
+                "filter-out": "Sortie",
+                "filter-today": "today",
+                "filter-week": "week",
+                "filter-month": "month",
+            };
+
+            // Attacher tous les events dynamiquement
+            Object.entries(filters).forEach(([id, value]) => {
+                document.getElementById(id).addEventListener("click", () => handleFilterClick(id, value));
+            });
+
+            async function fetchRapports() {
+                showLoader();
+                try {
+                    const res = await fetch(API_RAPPORT);
+                    const dataArray = await res.json();
+                    rapports = dataArray.rows;
+                    renderRapports();
+                } catch (error) {
+                    console.error("Erreur lors du chargement des données: ", error)
+                    showErrorToast("Erreur lors du chargement des données")
+                } finally {
+                    hideLoader();
+                }
+            }
+            fetchRapports();
+
+            function renderRapports() {
+                rapportsContainer.innerHTML = "";
+                emptyReport.classList.remove('hidden')
+                if (rapports.length === 0) {
+                    rapportsContainer.innerHTML = `
+                            <div class="rapport-row px-4 py-3 cursor-pointer" id="emptyReport">
+                                <div class="text-center py-8 text-gray-500">
+                                    <i class="ri-inbox-line text-4xl mb-2 text-gray-300"></i>
+                                    <p>Aucun rapport disponible</p>
+                                </div>
+                            </div>`;
+                    return;
+                }
+                emptyReport.classList.add('hidden')
+                rapports.forEach(r => {
+                    const div = document.createElement("div");
+                    div.innerHTML = `
+                            <div class="rapport-row px-4 py-3 cursor-pointer" data-id="${r.nid}">
+                                <div class="grid grid-cols-12 gap-2 items-center">
+                                    <div class="col-span-3 fs-c-7">
+                                        <div class="text-gray-900">${r.field_date ? formatDate(r.field_date) : "Pas de date"}</div>
+                                    </div>
+                                    <div class="col-span-5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center hidden justify-center">
+                                                <i class="ri-shopping-cart-line text-red-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm text-gray-900">
+                                                    <span class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
+                                                        ${r.field_category.title}
+                                                    </span>
+                                                </div>
+                                                <div class="text-xs text-gray-500 ms-1 mt-1 whitespace-nowrap overflow-hidden text-ellipsis w-32">
+                                                    ${r.field_client}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-span-4 text-right fs-c-7">
+                                        <div class="text-gray-500">
+                                        </div>
+                                        <div class="text-green-600">${formatCurrency(r.field_total_rmb, "RMB")}</div>
+                                        <div class="text-purple-600 mt-1">${formatCurrency(r.field_total_ariary, "AR")}</div>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                    const row = div.querySelector(".rapport-row");
+
+                    row.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const id = this.dataset.id;
+                        if (id) showRapport(id);
+                    });
+                    rapportsContainer.appendChild(div);
+                });
+
+            }
+
+            async function showRapport(id) {
+                rapport = await getRapportById(id);
+                deletingId = parseInt(id);
+                showFormAndDetails(rapport);
+            }
+
+            deleteReportBtn.addEventListener('click', function () {
+                showDeleteModal(deletingId);
+            })
+
+            async function getRapportById(id) {
+                showLoader();
+                try {
+                    const response = await fetch(API_RAPPORT + `?filters[nid][val]=${id}`);
+                    if (!response.ok) throw new Error("Erreur API : " + response.status);
+
+                    const dataArray = await response.json();
+                    const data = dataArray.rows;
+
+                    // data est un tableau d'éléments, ici 0 ou 1
+                    return data.length > 0 ? data[0] : null;
+                } catch (error) {
+                    console.error("Erreur lors de la récupération du rapport :", error);
+                    return null;
+                } finally {
+                    hideLoader()
+                }
+            }
+
+            function searchClient(nid) {
+                let clientName = "";
+                allClients.forEach(function (client) {
+                    if (client.nid == nid) {
+                        clientName = client.field_name;
+                    }
+                });
+                return clientName;
+            }
+
+            function formatCurrency(amount, currency = "AR") {
+                let options = {
+                    maximumFractionDigits: 0,
+                };
+
+                if (currency === "AR") {
+                    // Ariary
+                    return (
+                        new Intl.NumberFormat("fr-MG", options).format(amount) + " Ar"
+                    );
+                } else if (currency === "RMB") {
+                    // Yuan chinois (RMB)
+                    return (
+                        new Intl.NumberFormat("zh-CN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                        }).format(amount) + " RMB"
+                    );
+                } else {
+                    // fallback générique
+                    return new Intl.NumberFormat(undefined, options).format(amount);
+                }
+            }
+
+            function attachCloseHandler(button, modal) {
+                button.addEventListener('click', function () {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
+            }
+            attachCloseHandler(closeReportModal, reportModal);
+
+            function showLoader() {
+                document.getElementById("page-loader").classList.remove("hidden");
+            }
+
+            function hideLoader() {
+                document.getElementById("page-loader").classList.add("hidden");
+            }
+
+            function formatDate(isoString) {
+                const date = new Date(isoString);
+
+                const months = [
+                    "janv", "févr", "mars", "avr", "mai", "juin",
+                    "juil", "août", "sept", "oct", "nov", "déc"
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+
+                // Vérifier si la chaîne ISO contient l'heure
+                const hasTime = isoString.includes("T");
+
+                let timePart = "";
+                if (hasTime) {
+                    const hours = String(date.getHours()).padStart(2, "0");
+                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                    timePart = ` ${hours}h${minutes}`;
+                }
+
+                return `${day} ${month}<br>${year}`;
+            }
+
+            function formatTimestampDate(timestamp) {
+                const date = new Date(timestamp * 1000);
+
+                const months = [
+                    "janv", "févr", "mars", "avr", "mai", "juin",
+                    "juil", "août", "sept", "oct", "nov", "déc"
+                ];
+
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+
+                return `${day} ${month} ${year}`;
+            }
+
+            applyFilters.addEventListener('click', async () => {
+                pageNumber = 0;
+                let filtersFinalQuery = "";
+                loadMoreBtn.classList.add('hidden')
+                if (filterCategorySelect.value || filterClientSelect.value) {
+                    if (filterCategorySelect.value) {
+                        categorieFilterQuery = "&filters[field_category][val]=" + filterCategorySelect.value
+                        document.getElementById('active-category').textContent = filterCategorySelect.selectedOptions[0].text;
+                        document.getElementById('active-category').classList.remove('hidden');
+                        showRapportForm.classList.remove('hidden')
+                    }
+                    if (filterClientSelect.value) {
+                        clientFilterQuery = "&filters[field_client][val]=" + filterClientSelect.value
+                        document.getElementById('active-client').textContent = filterClientSelect.selectedOptions[0].text;
+                        document.getElementById('active-client').classList.remove('hidden');
+                    }
+                    filtersFinalQuery = categorieFilterQuery + clientFilterQuery;
+                    pushWithKey(queryBuilder, "category", filtersFinalQuery);
+                } else {
+                    pushWithKey(queryBuilder, "category", "");
+                    if (!filterCategorySelect.value) {
+                        document.getElementById('active-category').classList.add('hidden');
+                        showRapportForm.classList.add('hidden')
+                    }
+                    if (!filterClientSelect.value) {
+                        document.getElementById('active-client').classList.add('hidden');
+                    }
+                }
+                filterPanel.classList.remove('active');
+                await fetchAllTransactions(concatQueries(queryBuilder));
+                await fetchTransactions(concatQueries(queryBuilder));
+            })
+
+            sortByDate.addEventListener('click', async () => {
+                pageNumber = 0;
+                loadMoreBtn.classList.add('hidden')
+                if (sortByDate.getAttribute("data-date") == "asc") {
+                    sortByDate.setAttribute("data-date", "desc");
+                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=desc');
+                } else {
+                    sortByDate.setAttribute("data-date", "asc");
+                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=asc');
+                }
+                await fetchAllTransactions(concatQueries(queryBuilder));
+                await fetchTransactions(concatQueries(queryBuilder));
+            })
+
+            loadMoreBtn.addEventListener('click', function () {
+                pageNumber++;
+                fetchTransactions(concatQueries(queryBuilder));
+            });
+
+            // Toast handling
+            function showSuccessToast(msg) {
+                const successToast = document.createElement('div');
+                successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium z-50';
+                successToast.textContent = msg;
+                document.body.appendChild(successToast);
+                setTimeout(() => {
+                    successToast.remove();
+                    document.body.style.overflow = '';
+                }, 5000);
+            }
+
+            function showErrorToast(msg) {
+                const successToast = document.createElement('div');
+                successToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium z-50';
+                successToast.textContent = msg;
+                document.body.appendChild(successToast);
+                setTimeout(() => {
+                    successToast.remove();
+                    document.body.style.overflow = '';
+                }, 5000);
+            }
+
+            // Delete Modal
+            function showDeleteModal(id) {
+                rapport = rapports.find(r => r.nid == id);
+                if (rapport) {
+                    deletingId = id;
+                    document.getElementById('deleteModal').classList.remove('hidden');
+                    console.log(deletingId);
+                }
+            }
+
+            // Delete Modal handling
+            const deleteModal = document.getElementById('deleteModal');
+            const cancelDelete = document.getElementById('cancelDelete');
+            const confirmDelete = document.getElementById('confirmDelete');
+
+            cancelDelete.addEventListener('click', function () {
+                deleteModal.classList.add('hidden');
+            });
+
+            confirmDelete.addEventListener('click', async function () {
+                if (deletingId) {
+                    await deleteReportById(deletingId)
+                    deleteModal.classList.add('hidden');
+                    deletingId = null;
+                }
+            });
+
+            async function deleteReportById(id) {
+                showLoader();
+                try {
+                    const res = await fetch(`https://miandrilala.online/confirm/node/${id}/delete`, {
+                        method: "POST",
+                    });
+
+                    if (!res.ok) throw new Error("Échec lors de la suppression");
+
+                    rapports = rapports.filter(r => r.nid != id);
+                    renderRapports();
+                } catch (err) {
+                    console.error("Erreur de suppression :", err);
+                } finally {
+                    hideLoader();
+                    reportModal.classList.add('hidden');
+                    showSuccessToast("Rapport supprimée avec succès");
+                }
+            }
+
+            deleteModal.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.add('hidden');
+                    deletingId = null;
+                }
+            });
+
+            // fetch all clients
+            async function loadClients() {
+                try {
+                    const res = await fetch(API_BASE_CLIENTS);
+                    const dataArray = await res.json();
+                    const clients = dataArray.rows;
+                    allClients = clients;
+                    const filterClientSelect = document.getElementById("filterClientSelect");
+                    // Vider les options existantes sauf la première
+                    filterClientSelect.innerHTML = '<option value="">Tous les clients</option>';
+
+                    // Ajouter les clients depuis l'API
+                    clients.forEach((client) => {
+                        const option1 = document.createElement("option");
+                        option1.value = client.nid// option value formatée
+                        option1.textContent = client.field_name;
+                        filterClientSelect.appendChild(option1);
+                    });
+                } catch (error) {
+                    console.error("Erreur lors du chargement des clients :", error);
+                }
+            }
+            loadClients();
+
+            window.showDeleteModal = showDeleteModal;
+        });
+    </script>
+
+    <script id="categories">
+        document.addEventListener("DOMContentLoaded", function () {
+            const API_BASE_CATEGORIES =
+                "https://miandrilala.online/api/v2/taxonomy_term/category";
+
+            async function loadSectors() {
+                try {
+                    const res = await fetch(API_BASE_CATEGORIES);
+                    const dataArray = await res.json();
+                    const categories = dataArray.rows;
+
+                    const filterCategorySelect = document.getElementById("filterCategorySelect");
+
+                    // Vider les options existantes sauf la première
+                    filterCategorySelect.innerHTML = '<option value="">Tous les categories</option>';
+
+                    // Ajouter les catégories depuis l'API
+                    categories.forEach((cat) => {
+                        const option1 = document.createElement("option");
+                        option1.value = cat.tid// option value formatée
+                        option1.textContent = cat.name;
+                        filterCategorySelect.appendChild(option1);
+                    });
+                } catch (error) {
+                    console.error("Erreur lors du chargement des secteurs :", error);
+                }
+            }
+            loadSectors();
+        });
+
+    </script>
+    <script id="filterToggle">
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterBtn = document.getElementById('filterBtn');
+            const filterPanel = document.getElementById('filterPanel');
+            const closeFilterBtn = document.getElementById('closeFilterBtn');
+            filterBtn.addEventListener('click', function () {
+                filterPanel.classList.add('active');
+            });
+            closeFilterBtn.addEventListener('click', function () {
+                filterPanel.classList.remove('active');
+            });
+        });
+    </script>
+    <script id="mobileSidebarScript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebar = document.querySelector("aside");
+            const openSidebarBtn = document.getElementById("openSidebar");
+            const closeSidebarBtn = document.getElementById("closeSidebar");
+            const overlay = document.getElementById("overlay");
+            function openSidebar() {
+                sidebar.classList.remove("-translate-x-full");
+                overlay.classList.remove("hidden");
+                document.body.style.overflow = "hidden";
+            }
+            function closeSidebar() {
+                sidebar.classList.add("-translate-x-full");
+                overlay.classList.add("hidden");
+                document.body.style.overflow = "";
+            }
+            openSidebarBtn.addEventListener("click", openSidebar);
+            closeSidebarBtn.addEventListener("click", closeSidebar);
+            overlay.addEventListener("click", closeSidebar);
+            // Close sidebar when clicking on a nav link (mobile only)
+            const navLinks = document.querySelectorAll("nav a");
+            navLinks.forEach((link) => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+            // Handle window resize
+            window.addEventListener("resize", () => {
+                if (window.innerWidth >= 1024) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+
+    <script id="appComportement">
+        /****************************************************************
+         * 1) Bloquer ctrl/cmd + plus/minus/0 et roulette avec ctrl
+         ****************************************************************/
+        window.addEventListener('keydown', function (e) {
+            // e.key: "=", "-", "0", "+"; on checke aussi e.code
+            const isCtrl = e.ctrlKey || e.metaKey; // ctrl (Windows) ou cmd (Mac)
+            if (isCtrl) {
+                // Bloquer +, -, =, 0 (différentes claviers peuvent envoyer "=" pour +)
+                if (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                // Bloquer Ctrl + Mousewheel is handled in wheel listener below
+            }
+        }, { passive: false });
+
+        // Bloquer la roulette quand ctrl/cmd est pressé
+        window.addEventListener('wheel', function (e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, { passive: false });
+
+        /****************************************************************
+         * 2) Empêcher le pinch-zoom sur mobile / iOS / Android
+         *    - "gesturestart" est iOS Safari specific
+         *    - On empêche le double-tap zoom et le pinch en interceptant touch events
+         ****************************************************************/
+        // iOS Safari: gesturestart
+        window.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Empêcher le double tap zoom (trick: bloquer double tap rapid)
+        (function () {
+            let lastTouch = 0;
+            window.addEventListener('touchend', function (e) {
+                const now = Date.now();
+                if (now - lastTouch <= 300) {
+                    // double-tap détecté -> empêcher
+                    e.preventDefault();
+                }
+                lastTouch = now;
+            }, { passive: false });
+        })();
+
+        // Empêcher pinch (deux doigts) — on peut repérer touchmove avec 2 touches
+        window.addEventListener('touchmove', function (e) {
+            if (e.touches && e.touches.length > 1) {
+                // si plus d'un doigt, c'est probablement un pinch ou rotation -> bloquer
+                e.preventDefault();
+            } else {
+                // possibilité de bloquer le défilement horizontal: regarder le déplacement X vs Y
+                // si vous voulez empêcher tout mouvement horizontal sur un touch simple, décommentez ci-dessous.
+                //
+                // const touch = e.touches[0];
+                // // besoin de logique additionnelle pour déterminer dx/dy — laissé simple ici
+            }
+        }, { passive: false });
+
+        /****************************************************************
+         * 3) Optionnel : Empêcher scroll horizontal par clavier (flèche gauche/droite, space)
+         ****************************************************************/
+        window.addEventListener('keydown', function (e) {
+            // Flèches gauche/droite, Home, End, PageUp/PageDown, espace (parfois) provoquent déplacement
+            const blockedKeys = ['ArrowLeft', 'ArrowRight'];
+            if (blockedKeys.includes(e.key)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, { passive: false });
+
+        /****************************************************************
+         * 4) Sécurité : s'assurer que body ne dépasse pas largeur viewport
+         ****************************************************************/
+        function clampBodyWidth() {
+            document.documentElement.style.overflowX = 'hidden';
+            document.body.style.overflowX = 'hidden';
+            document.body.style.maxWidth = '100vw';
+        }
+        // initial + on resize
+        clampBodyWidth();
+        window.addEventListener('resize', clampBodyWidth);
+    </script>
+</body>
+
+</html>
