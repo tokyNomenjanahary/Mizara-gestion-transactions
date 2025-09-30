@@ -1063,16 +1063,19 @@
                 let posRmb;
                 let negRmb;
                 let totalRmb;
+                let ids;
                 if (data) {
                     pos = data.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     neg = data.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     posRmb = data.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
                     negRmb = data.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
+                    ids = data.map(item => item.field_client);
                 } else {
                     pos = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     neg = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_amount), 0);
                     posRmb = transactions.filter(t => t.field_type == "Entrée").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
                     negRmb = transactions.filter(t => t.field_type == "Sortie").reduce((sum, t) => sum + Number(t.field_montant_rmb), 0);
+                    ids = transactions.map(item => item.field_client);
                 }
                 total = pos - neg;
                 totalRmb = posRmb - negRmb;
@@ -1084,9 +1087,6 @@
                 summaryNegative.textContent = formatCurrency(negRmb, "RMB") + " / " + formatCurrency(neg, "AR");
 
                 // clients
-                // Récupérer tous les IDs de clients depuis data
-                const ids = data.map(item => item.field_client);
-
                 // Supprimer les doublons
                 const uniqueIds = [...new Set(ids)];
 
@@ -1951,6 +1951,8 @@
 
             getTransactionsRange("today");
             const ClientItemsRapport = JSON.parse(localStorage.getItem('items'));
+            const ClientNameRapport = ClientItemsRapport.name
+            const ClientIdRapport = ClientItemsRapport.id
             if (ClientItemsRapport) {
                 (async function () {
                     queryBuilder = [
@@ -1961,12 +1963,19 @@
                             "first": ""
                         }
                     ]
-                    handleFilterClick("filter-all", "All")
                     document.getElementById('active-category').textContent = "Suivi payment";
                     document.getElementById('active-category').classList.remove('hidden');
                     document.getElementById('active-client').textContent = ClientItemsRapport.name;
                     document.getElementById('active-client').classList.remove('hidden');
+                    showRapportForm.classList.remove('hidden');
+                    handleFilterClick("filter-all", "All")
                 })();
+                setTimeout(() => {
+                    filterCategorySelect.value = 27;
+                    categorieReport = 27;
+                    clientsReport = [ClientNameRapport];
+                    filterClientSelect.value = parseInt(ClientIdRapport);
+                }, 1500);
             } else {
                 (async function () {
                     await fetchAllTransactions(queryBuilder[0].first);
