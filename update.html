@@ -185,6 +185,59 @@
         </div>
     </div>
 
+    <!-- update status Modal -->
+    <div id="updateTrStatusModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-full mr-4">
+                    <i class="ri-error-warning-line text-blue-600 ri-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Changer le statut</h3>
+                </div>
+            </div>
+            <div>
+                <div class="mb-4">
+                    <div id="transaction-status" class="ms-8">
+                        <input type="number" class="hidden" id="idTr">
+                        <div>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="transaction_state" value="Draft" checked
+                                    class="text-primary focus:ring-primary">
+                                <span>Draft</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="transaction_state" value="Process"
+                                    class="text-primary focus:ring-primary">
+                                <span>Process</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-2">
+                                <input type="radio" name="transaction_state" value="Paid"
+                                    class="text-primary focus:ring-primary">
+                                <span>Paid</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button type="button" id="cancelUpdate"
+                    class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors !rounded-button whitespace-nowrap">
+                    Annuler
+                </button>
+                <button type="button" id="confirmUpdate"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors !rounded-button whitespace-nowrap">
+                    Modifier
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navbar -->
     <aside
         class="w-64 bg-white shadow-lg h-screen fixed left-0 top-0 overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-10">
@@ -566,6 +619,10 @@
             const sectorError = document.getElementById("sectorError");
             const clientError = document.getElementById("clientError");
             const exchangeError = document.getElementById("exchangeError");
+            const updateTrStatusModal = document.getElementById("updateTrStatusModal");
+            const cancelUpdate = document.getElementById("cancelUpdate");
+            const confirmUpdate = document.getElementById("confirmUpdate");
+
 
             // qr
             const qrInput = document.getElementById("qr-input");
@@ -840,12 +897,6 @@
                 }
                 transactions.forEach(t => {
                     let clientName = searchClient(t.field_client);
-                    // const description = t.field_description;
-                    // const maxLength = 15;
-
-                    // const shortDesc = description.length > maxLength
-                    //     ? description.substring(0, maxLength) + "..."
-                    //     : description;
 
                     const div = document.createElement("div");
                     div.innerHTML = `
@@ -879,7 +930,8 @@
                                     <div class="col-span-6 text-right fs-c-7">
                                         <div class="text-gray-500">
                                             <span class="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-500 ring-1 ring-inset ring-purple-400/20 text-center">
-                                                Draft</span>
+                                                ${t.field_status ? t.field_status : "Draft"}
+                                            </span>
                                         </div>
                                         <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_montant_rmb, "RMB")} / ${t.field_cours}</div>
                                         <div class="${t.field_type == "Entrée" ? "text-green-600" : "text-red-600"}">${formatCurrency(t.field_amount, "AR")}</div>
@@ -1016,7 +1068,7 @@
                     field_amount = amount;
                     field_montant_rmb = parseFloat(amount / exchange);
                 }
-                
+
                 const newTransaction = {
                     "title": "transaction",
                     "entity_type": "node",
@@ -1033,6 +1085,7 @@
                     "field_client": client.value,
                     "field_cours": parseFloat(exchange),
                     "field_montant_rmb": field_montant_rmb,
+                    "field_status": "Draft",
                 };
 
                 try {
@@ -1165,6 +1218,60 @@
                 }
             }
 
+            function showEditStatusModal(id, status = "Draft") {
+                console.log(id, status);
+                let idTr = document.getElementById('idTr');
+                idTr.value = id;
+                // Cherche l'input radio qui a comme value la valeur du paramètre "status"
+                const radio = document.querySelector(
+                    `input[name="transaction_state"][value="${status}"]`
+                );
+
+                if (radio) {
+                    radio.checked = true;
+                }
+                updateTrStatusModal.classList.remove('hidden')
+            }
+
+            cancelUpdate.addEventListener('click', function () {
+                updateTrStatusModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            });
+            confirmUpdate.addEventListener('click', function () {
+                let checkedValue = document.querySelector('input[name="transaction_state"]:checked')?.value;
+                let idTr = document.getElementById('idTr').value;
+                updateTransactionStatus(idTr, checkedValue)
+            });
+
+            async function updateTransactionStatus(id, data) {
+                showLoader();
+                try {
+                    const statusData = {
+                        "nid": parseInt(id),
+                        "entity_type": "node",
+                        "bundle": "transactions",
+                        "field_status": data,
+                    }
+                    const res = await fetch(`${API_ADD_TRANSACTION}`, {
+                        method: "POST",
+                        body: JSON.stringify(statusData),
+                    });
+
+                    if (!res.ok) throw new Error("Échec de la mise à jour");
+
+                    const updatedTransaction = await res.json();
+                    show(updatedTransaction.item.nid)
+                } catch (err) {
+                    console.error("Des erreurs sont survenu :", err);
+                    showErrorToast("Erreur lors de la modification de la transaction");
+                } finally {
+                    document.getElementById('idTr').value = "";
+                    updateTrStatusModal.classList.add('hidden');
+                    showSuccessToast('Modifications enregistrées');
+                    hideLoader();
+                }
+            }
+
             async function show(id) {
                 transaction = await getTransactionDetails(id);
 
@@ -1199,7 +1306,9 @@
                             <div class="flex justify-between py-2 border-b border-gray-100 items-center">
                                 <span class="text-sm text-gray-600">Status</span>
                                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inse
-                                    text-purple-400 ring-purple-400/20 bg-purple-400/10">Draft</span>
+                                    text-purple-400 ring-purple-400/20 bg-purple-400/10" onclick="showEditStatusModal(${transaction.nid}, '${transaction.field_status}')">
+                                        ${transaction.field_status ? transaction.field_status : "Draft"}
+                                    </span>
                             </div>
                             <div class="flex justify-between py-2 border-b border-gray-100 items-center">
                                 <span class="text-sm text-gray-600">Date du transaction</span>
@@ -1222,21 +1331,21 @@
                             </div>-->
                         </div>
                                 ${transaction.field_description
-                                    ? `<div class="space-y-2">
+                        ? `<div class="space-y-2">
                                             <div class="text-sm text-gray-600 mt-4">Description</div>
                                             <div class="w-full p-3 pt-1 text-sm text-gray-900">${transaction.field_description}</div>
                                         </div>`
-                                    : ``
-                                }
+                        : ``
+                    }
                         <div class="flex flex-col mt-0 gap-3 pb-3 border-b border-gray-100">
                             <span class="text-sm text-gray-600 mt-4">Évidence associée</span>
                             <div class="flex flex-wrap justify-center items-center gap-2">
                                 ${transaction.field_evidence?.url
-                                    ? `<div class="w-full md:w-1/2 flex justify-center">
+                        ? `<div class="w-full md:w-1/2 flex justify-center">
                                                         <img src="${transaction.field_evidence.url}" alt="Image" class="w-1/4 rounded-2xl">
                                                 </div>`
-                                    : `<span class="text-gray-400 text-sm">Aucune image</span>`
-                                }
+                        : `<span class="text-gray-400 text-sm">Aucune image</span>`
+                    }
                             </div>
                         </div>
                     </div>`
@@ -1561,6 +1670,7 @@
                         "field_client": client.value,
                         "field_cours": parseFloat(exchange),
                         "field_montant_rmb": field_montant_rmb,
+
                     }
                     if (base64File) {
                         formData.field_evidence = base64File
@@ -1637,6 +1747,8 @@
 
 
             window.showDeleteModal = showDeleteModal;
+            window.showEditStatusModal = showEditStatusModal;
+
             amountInput.addEventListener("input", updatePreviewValues);
         });
     </script>
