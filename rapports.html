@@ -141,7 +141,8 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" style="z-index: 99;">
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+        style="z-index: 99;">
         <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
             <div class="flex items-center mb-4">
                 <div class="w-12 h-12 flex items-center justify-center bg-red-100 rounded-full mr-4">
@@ -291,7 +292,7 @@
             </button>
             <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
             <div class="w-5">
-                <button id="filterBtn" class="text-gray-500 hover:text-gray-700 cursor-pointer">
+                <button id="filterBtn" class="text-gray-500 hover:text-gray-700 cursor-pointer hidden">
                     <i class="ri-filter-3-line text-gray-600"></i>
                 </button>
             </div>
@@ -367,10 +368,6 @@
                         class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                         Tout
                     </button>
-                    <button id="filter-today"
-                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap">
-                        Aujourd'hui
-                    </button>
                     <button id="filter-week"
                         class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                         cette semaine
@@ -378,14 +375,6 @@
                     <button id="filter-month"
                         class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                         ce mois-ci
-                    </button>
-                    <button id="filter-in"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        Entrée
-                    </button>
-                    <button id="filter-out"
-                        class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        Sortie
                     </button>
                 </div>
             </div>
@@ -423,6 +412,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Bottom Summary -->
+        <div class="bottom-0 w-full bg-white border-t border-gray-200 shadow-lg fixed bottom-0 left-0 fs-c-7"
+            id="bottomSumary">
+            <div class="px-4 py-3">
+                <div class="flex justify-between items-center mb-1" id="total-in">
+                    <span class="text-gray-600">Solde total</span>
+                    <span id="summary-rmb" class="text-green-600">0 Ar</span>
+                </div>
+                <div class="flex justify-end items-center mb-1 text" id="total-out">
+                    <span id="summary-ar" class="text-secondary">0 Ar</span>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script id="report-logic">
@@ -433,7 +436,10 @@
             const rapportsContainer = document.getElementById('rapports-container');
             const emptyReport = document.getElementById('emptyReport');
             const deleteReportBtn = document.getElementById('deleteReportBtn');
-            
+            const bottomSumary = document.getElementById('bottomSumary');
+            const rmbSumary = document.getElementById('summary-rmb');
+            const arSumary = document.getElementById('summary-ar');
+
 
             const loadMoreBtn = document.getElementById('loadMoreBtn');
             // modal
@@ -561,9 +567,6 @@
             // Déclaration des filtres (id bouton => valeur du filtre)
             const filters = {
                 "filter-all": "All",
-                "filter-in": "Entrée",
-                "filter-out": "Sortie",
-                "filter-today": "today",
                 "filter-week": "week",
                 "filter-month": "month",
             };
@@ -588,6 +591,22 @@
                 }
             }
             fetchRapports();
+
+            async function fetchAllRapports() {
+                showLoader();
+
+                try {
+                    const res = await fetch(API_RAPPORT);
+                    const dataArray = await res.json();
+                    rapports = dataArray.rows;
+                    updateSummary(rapports);
+                } catch (e) {
+                    console.error("Erreur de chargement :", e);
+                } finally {
+                    hideLoader();
+                }
+            }
+            fetchAllRapports();
 
             function renderRapports() {
                 rapportsContainer.innerHTML = "";
@@ -679,6 +698,21 @@
                 }
             }
 
+            function updateSummary(data = null) {
+                let totalAr;
+                let totalRmb;
+                if (data) {
+                    totalRmb = data.reduce((sum, r) => sum + Number(r.field_total_rmb), 0);
+                    totalAr = data.reduce((sum, r) => sum + Number(r.field_total_ariary), 0);
+                } else {
+                    totalRmb = rapports.reduce((sum, r) => sum + Number(r.field_total_rmb), 0);
+                    totalAr = rapports.reduce((sum, r) => sum + Number(r.field_total_ariary), 0);
+                }
+                rmbSumary.textContent = formatCurrency(totalRmb, "RMB");
+                arSumary.textContent = formatCurrency(totalAr, "AR");
+            }
+
+
             function searchClient(nid) {
                 let clientName = "";
                 allClients.forEach(function (client) {
@@ -727,6 +761,16 @@
 
             function hideLoader() {
                 document.getElementById("page-loader").classList.add("hidden");
+            }
+
+            function scrollAtTheTopList() {
+                const container = document.getElementById("transactions-container");
+                if (container) {
+                    container.scrollTo({
+                        top: 0,
+                        behavior: "smooth" // Animation fluide
+                    });
+                }
             }
 
             function formatDate(isoString) {

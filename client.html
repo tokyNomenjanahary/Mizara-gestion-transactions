@@ -321,7 +321,7 @@
         async function fetchClients() {
             showLoader();
             try {
-                const res = await fetch(API_CLIENT + "?sort[val]=nid&sort[op]=desc");
+                const res = await fetch(API_CLIENT + "?sort[val]=nid&sort[op]=desc&pager=0&offset=1000");
                 const dataArray = await res.json();
                 clients = dataArray.rows;
                 renderClients();
@@ -351,7 +351,7 @@
                     <div class="w-7 h-7 flex items-center justify-center bg-primary/10 rounded-lg mr-3">
                         <i class="ri-user-line text-primary"></i>
                     </div>
-                    <span class="font-medium text-gray-900 text-sm">${client.field_name}</span>
+                    <span class="font-medium text-gray-900 text-sm">${client.nid} - ${client.field_name}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button 
@@ -409,12 +409,17 @@
         }
 
         function getHistory(id, name) {
-            let item = {
-                id: id,
-                name: name
-            };
-            localStorage.setItem('items', JSON.stringify(item));
-            window.location = 'file:///home/alice/Documents/mvola/gestion-git/update-history.html';
+            showLoader();          
+            try {      
+                let item = {
+                    id: id,
+                    name: name
+                };
+                localStorage.setItem('items', JSON.stringify(item));
+                window.location = 'file:///home/alice/Documents/mvola/gestion-git/update-history.html';
+            } catch (error) {
+                showErrorToast("Une erreur c'est produite");
+            }
         }
 
         async function updateClient(id, name) {

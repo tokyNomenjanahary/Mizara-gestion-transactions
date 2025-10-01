@@ -765,7 +765,7 @@
 
             // client variable
             const API_BASE_CLIENTS =
-                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
+                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc&pager=0&offset=1000";
             let allClients = [];
 
             // filter dom
@@ -1149,7 +1149,7 @@
                                         </div>
                                     </div>
                                     <div class="col-span-6 text-right fs-c-7">
-                                        <div class="text-gray-500">
+                                        <div class="text-gray-500" onclick="event.stopPropagation(); showEditStatusModal(${t.nid}, '${t.field_status}')">
                                             <span class="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-500 ring-1 ring-inset ring-purple-400/20 text-center">
                                                 ${t.field_status ? t.field_status : "Draft"}
                                             </span>
@@ -1409,7 +1409,12 @@
                     if (!res.ok) throw new Error("Échec de la mise à jour");
 
                     const updatedTransaction = await res.json();
+                    const transactionToUpdate = transactions.find(t => t.nid == parseInt(id));
+                    if (transactionToUpdate) {
+                        transactionToUpdate.field_status = data;
+                    }
                     show(updatedTransaction.item.nid)
+                    renderTransactions();
                 } catch (err) {
                     console.error("Des erreurs sont survenu :", err);
                     showErrorToast("Erreur lors de la modification de la transaction");
@@ -1951,9 +1956,9 @@
 
             getTransactionsRange("today");
             const ClientItemsRapport = JSON.parse(localStorage.getItem('items'));
-            const ClientNameRapport = ClientItemsRapport.name
-            const ClientIdRapport = ClientItemsRapport.id
             if (ClientItemsRapport) {
+                const ClientNameRapport = ClientItemsRapport.name;
+                const ClientIdRapport = ClientItemsRapport.id;
                 (async function () {
                     queryBuilder = [
                         {
