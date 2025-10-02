@@ -224,8 +224,8 @@
             </div>
 
             <!-- Categories List -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center justify-between mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-2">
+                <div class="flex items-center justify-between mb-6 ms-2 mt-1">
                     <h2 class="text-xl font-semibold text-gray-900">Tout les categories</h2>
                     <div class="flex items-center space-x-3 hidden">
                         <button
@@ -343,12 +343,12 @@
             emptyState.classList.add('hidden');
 
             container.innerHTML = categories.map(category => `
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg mr-3">
+                    <div class="w-7 h-7 flex items-center justify-center bg-primary/10 rounded-lg mr-3">
                         <i class="ri-bookmark-line text-primary"></i>
                     </div>
-                    <span class="font-medium text-gray-900">${category.name}</span>
+                    <span class="font-medium text-gray-900 text-sm">${category.name}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button 

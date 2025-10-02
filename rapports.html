@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    <!-- Transaction modal for Report form -->
+    <!-- modal for Report form -->
     <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
             <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
@@ -222,6 +222,112 @@
                             <button id="deleteReportBtn"
                                 class="w-min py-3 px-4 bg-red-400 text-white rounded-lg font-medium hover:bg-red-600 transition-colors cursor-pointer !rounded-button">
                                 <i class="ri-delete-bin-line text-white text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal for Report form -->
+    <div id="reportModalAdd" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
+            <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-50">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">Ajouter un rapport</h2>
+                    <button id="closeReportModalAdd" class="w-8 h-8 flex items-center justify-center">
+                        <i class="ri-close-line text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 space-y-6">
+                <div id="addReportForm" class="space-y-6">
+                    <div>
+                        <div class="space-y-4 mb-4">
+                            <div class="mb-4">
+                                <label for="client" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Client
+                                </label>
+                                <div class="relative">
+                                    <select id="client"
+                                        class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm appearance-none">
+                                        <option value="">Sélectionnez un client</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p id="clientError" class="text-red-500 text-xs mt-2 hidden"></p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="sector" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Catégorie
+                                </label>
+                                <div class="relative">
+                                    <select id="sector"
+                                        class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm appearance-none">
+                                        <option value="">Sélectionnez un catégorie</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p id="sectorError" class="text-red-500 text-xs mt-2 hidden"></p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="amountRmb" class="block text-sm font-medium text-gray-700 mb-1">Solde
+                                (RMB)</label>
+                            <div class="relative">
+                                <input type="text" id="amountRmb"
+                                    class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"
+                                    placeholder="Entrez le montant en RMB" />
+                            </div>
+                            <p id="amountRmbError" class="text-red-500 text-xs mt-2 hidden"></p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="amountAr" class="block text-sm font-medium text-gray-700 mb-1">Solde
+                                (Ariary)</label>
+                            <div class="relative">
+                                <input type="number" id="amountAr"
+                                    class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"
+                                    placeholder="Entrez le montant en Ariary" />
+                            </div>
+                            <p id="amountArError" class="text-red-500 text-xs mt-2 hidden"></p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1"
+                                    for="dateRapprotAdd">Date</label>
+                                <input type="date" id="dateRapprotAdd"
+                                    class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm">
+                                <p id="dateErr" class="text-red-500 text-xs mt-2 hidden"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label for="rDescriptionAdd"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <div class="relative">
+                                    <textarea rows="3" id="rDescriptionAdd" placeholder="Description ..."
+                                        class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"></textarea>
+                                </div>
+                                <p id="rDescriptionErrorAdd" class="text-red-500 text-xs mt-2 hidden"></p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            <button id="addReport"
+                                class="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors cursor-pointer !rounded-button">
+                                Enregistrez
                             </button>
                         </div>
                     </div>
@@ -291,57 +397,6 @@
                 </div>
             </button>
             <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
-            <div class="w-5">
-                <button id="filterBtn" class="text-gray-500 hover:text-gray-700 cursor-pointer hidden">
-                    <i class="ri-filter-3-line text-gray-600"></i>
-                </button>
-            </div>
-        </div>
-
-        <!--     filtre     -->
-        <div id="filterPanel" class="fixed top-0 left-0 right-0 bg-white shadow-lg z-50 filter-panel">
-            <div class="px-4 py-3 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">Filtres avancés</h2>
-                    <button id="closeFilterBtn" class="w-8 h-8 flex items-center justify-center cursor-pointer">
-                        <i class="ri-close-line text-gray-600"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="px-4 py-4 max-h-96 overflow-y-auto">
-                <div class="space-y-6 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Client</label>
-                        <div class="relative">
-                            <select id="filterClientSelect"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none bg-white">
-                            </select>
-                            <div
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-                                <i class="ri-arrow-down-s-line text-gray-500"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
-                        <div class="relative">
-                            <select id="filterCategorySelect"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none bg-white">
-                            </select>
-                            <div
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-                                <i class="ri-arrow-down-s-line text-gray-500"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="px-4 py-4 border-t border-gray-200 flex gap-3">
-                <button id="applyFilters"
-                    class="flex-1 py-2.5 bg-primary text-white rounded-lg text-sm font-medium cursor-pointer !rounded-button">Appliquer</button>
-            </div>
         </div>
 
         <!-- Rapport List -->
@@ -349,7 +404,7 @@
             <div class="p-5">
                 <div class="flex justify-between flex-wrap items-center mb-3">
                     <h2 class="text-lg font-semibold text-gray-800 mb-1">
-                        Rapport
+                        Rapports
                     </h2>
                     <div class="flex items-center gap-2 mb-1 hidden">
                         <button id="active-client"
@@ -367,6 +422,10 @@
                     <button id="filter-all"
                         class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                         Tout
+                    </button>
+                    <button id="filter-today"
+                        class="text-xs px-3 py-1.5 rounded-full bg-primary text-white font-medium whitespace-nowrap">
+                        Aujourd'hui
                     </button>
                     <button id="filter-week"
                         class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
@@ -426,6 +485,12 @@
                 </div>
             </div>
         </div>
+        <div class="fixed bottom-16 right-6 z-30">
+            <button id="fabButton"
+                class="w-10 h-10 bg-primary hover:bg-primary-dark shadow-lg rounded-full flex items-center justify-center cursor-pointer transition-transform duration-200">
+                <i class="ri-add-fill text-white text-2xl"></i>
+            </button>
+        </div>
     </main>
 
     <script id="report-logic">
@@ -439,58 +504,157 @@
             const bottomSumary = document.getElementById('bottomSumary');
             const rmbSumary = document.getElementById('summary-rmb');
             const arSumary = document.getElementById('summary-ar');
-
-
+            const fabButton = document.getElementById('fabButton');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
-            // modal
-            const transactionModal = document.getElementById('transactionModal');
-            const transactionForm = document.getElementById('transactionForm');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            // edit form modal
-            const transactionModalEditForm = document.getElementById('transactionModalEditForm');
-            const transactionFormEditForm = document.getElementById('transactionFormEditForm');
-            const closeModalBtnEditForm = document.getElementById('closeModalBtnEditForm');
 
             // client variable
             const API_BASE_CLIENTS =
-                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc";
+                "https://miandrilala.online/api/v2/node/client?fields[]=nid&fields[]=field_name&sort[val]=field_name&sort[op]=asc&pager=0&offset=1000";
             let allClients = [];
 
             // filter dom
-            const applyFilters = document.getElementById('applyFilters');
-            const filterCategorySelect = document.getElementById('filterCategorySelect');
-            const filterClientSelect = document.getElementById('filterClientSelect');
             const sortByDate = document.getElementById('sortByDate');
-            let pageNumber = 0;
-            let totalItems = 0;
-            let offset = 10;
 
             const API_BASE_EXCHANGE =
                 "https://miandrilala.online/api/v2/taxonomy_term/exchange?sort[val]=tid&sort[op]=desc";
-            // filter query
-
-            let categorieFilterQuery = null;
-            let clientFilterQuery = null;
-            let PeriodQuery = null;
-            let dateFilterQuery = null;
-            let queryBuilder = [];
 
             // Rapport
-            // const showRapportForm = document.getElementById("showRapportForm");
             const reportModal = document.getElementById('reportModal');
             const reportForm = document.getElementById('reportForm');
             const closeReportModal = document.getElementById('closeReportModal');
+            const reportModalAdd = document.getElementById('reportModalAdd');
+            const addReportForm = document.getElementById('addReportForm');
+            const closeReportModalAdd = document.getElementById('closeReportModalAdd');
             const rDescription = document.getElementById('rDescription');
             const dateRapprot = document.getElementById('dateRapprot');
             const rCategorie = document.getElementById('rCategorie');
             const rClientList = document.getElementById('rClientList');
             const rSoldeTotal = document.getElementById('rSoldeTotal');
+
             let rId = null;
             const saveReport = document.getElementById('saveReport');
             let totalReportRmb = 0;
             let totalReportAr = 0;
             let clientsReport = [];
-            let categorieReport = filterCategorySelect.value;
+            let pageNumber = 0;
+            let totalRapports = 0;
+            let totalPages = 0;
+            let perPage = 10;
+            let activeDateSort = "desc";
+            let activeDateRange = getTransactionsRange("today");
+
+            // add rapport
+            const addReport = document.getElementById('addReport');
+            const rDescriptionAdd = document.getElementById('rDescriptionAdd');
+            const dateRapprotAdd = document.getElementById('dateRapprotAdd');
+            const dateErr = document.getElementById('dateErr');
+            const amountAr = document.getElementById('amountAr');
+            const amountArError = document.getElementById('amountArError');
+            const amountRmbError = document.getElementById('amountRmbError');
+            const amountRmb = document.getElementById('amountRmb');
+            const sectorError = document.getElementById('sectorError');
+            const sector = document.getElementById('sector');
+            const clientError = document.getElementById('clientError');
+            const client = document.getElementById('client');
+
+            // --- Fonction de validation ---
+            function validateReportForm() {
+                let isValid = true;
+
+                // reset erreurs
+                dateErr.classList.add('hidden');
+                amountArError.classList.add('hidden');
+                amountRmbError.classList.add('hidden');
+                sectorError.classList.add('hidden');
+                clientError.classList.add('hidden');
+
+                // date
+                if (dateRapprotAdd.value === "") {
+                    dateErr.textContent = "Veuillez entrer une date !";
+                    dateErr.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // montant Ariary
+                if (amountAr.value.trim() === "" || isNaN(amountAr.value)) {
+                    amountArError.textContent = "Montant Ar invalide";
+                    amountArError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // montant RMB
+                if (amountRmb.value.trim() === "" || isNaN(amountRmb.value)) {
+                    amountRmbError.textContent = "Montant RMB invalide";
+                    amountRmbError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // secteur
+                if (sector.value === "" || sector.value === "0") {
+                    sectorError.textContent = "Veuillez sélectionner un secteur";
+                    sectorError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // client
+                if (client.value === "" || client.value === "0") {
+                    clientError.textContent = "Veuillez sélectionner un client";
+                    clientError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            // --- Listener bouton ---
+            addReport.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (validateReportForm()) {
+                    sendRepport();
+                }
+            });
+
+
+            async function sendRepport(params) {
+                showLoader();
+                try {
+                    const clientNameRepport = client.options[client.selectedIndex].text;
+                    const newReport = {
+                        "title": "rapports",
+                        "entity_type": "node",
+                        "bundle": "rapports",
+                        "body": "<h1>transaction</h1>",
+                        "uid": 1,
+                        "status": 1,
+                        "field_category": parseInt(sector.value),
+                        "field_client": clientNameRepport,
+                        "field_date": dateRapprotAdd.value,
+                        "field_total_ariary": amountAr.value.trim(),
+                        "field_total_rmb": amountRmb.value.trim(),
+                        "field_description": rDescriptionAdd.value.trim(),
+                    }
+                    const res = await fetch(`${API_BASE}`, {
+                        method: "POST",
+                        body: JSON.stringify(newReport),
+                    });
+
+                    if (!res.ok) throw new Error("Échec lors de l'ajout");
+                    handleFilterClick('filter-today', "today");
+
+                } catch (error) {
+                    console.error("Des erreurs sont survenu :", error);
+                } finally {
+                    client.value = "";
+                    sector.value = "";
+                    dateRapprotAdd.value = "";
+                    amountAr.value = "";
+                    amountRmb.value = "";
+                    rDescriptionAdd.value = "";
+                    reportModalAdd.classList.add('hidden');
+                    showSuccessToast('Rapport ajouter avec succès');
+                    hideLoader();
+                }
+            }
 
             function showFormAndDetails(rapport) {
                 reportModal.classList.remove('hidden');
@@ -540,7 +704,7 @@
                 } finally {
                     reportModal.classList.add('hidden');
                     showSuccessToast('Rapport modifier avec succès');
-                    await fetchRapports();
+                    handleFilterClick('filter-today', "today");
                     hideLoader();
                 }
 
@@ -549,6 +713,24 @@
             function handleFilterClick(filterId, filterValue) {
                 pageNumber = 0;
                 const buttons = document.querySelectorAll('[id^="filter-"]');
+                let req = "";
+                if (filterValue == "All") {
+                    req = getTransactionsRange(filterValue);
+                    activeDateRange = req;
+                } else if (filterValue == "week") {
+                    req = getTransactionsRange(filterValue);
+                    activeDateRange = req;
+                } else if (filterValue == "month") {
+                    req = getTransactionsRange(filterValue);
+                    activeDateRange = req;
+                } else {
+                    req = getTransactionsRange("today");
+                    activeDateRange = req;
+                }
+
+                fetchAllRapports(req);
+                fetchRapports(req, activeDateSort);
+
 
                 // Reset tous les boutons
                 buttons.forEach((btn) => {
@@ -561,12 +743,12 @@
                 current.classList.replace("bg-gray-100", "bg-primary");
                 current.classList.replace("text-gray-600", "text-white");
                 scrollAtTheTopList();
-                return totalItems;
             }
 
             // Déclaration des filtres (id bouton => valeur du filtre)
             const filters = {
                 "filter-all": "All",
+                "filter-today": "today",
                 "filter-week": "week",
                 "filter-month": "month",
             };
@@ -576,12 +758,37 @@
                 document.getElementById(id).addEventListener("click", () => handleFilterClick(id, value));
             });
 
-            async function fetchRapports() {
+            async function fetchRapports(req = null, date = "desc") {
                 showLoader();
+                if (!req) {
+                    req = "";
+                }
                 try {
-                    const res = await fetch(API_RAPPORT);
+                    const res = await fetch(API_RAPPORT + "?sort[val]=field_date&sort[op]=" + date + req + "&pager=" + pageNumber + "&offset=" + perPage);
                     const dataArray = await res.json();
-                    rapports = dataArray.rows;
+                    data = dataArray.rows;
+
+                    if (pageNumber == 0) {
+                        rapports = data;
+                    } else {
+                        data.forEach((item) => {
+                            const index = rapports.findIndex((rp) => rp.nid == item.nid);
+                            if (index !== -1) {
+                                // Si l'élément existe déjà, on le remplace
+                                rapports[index] = item;
+                            } else {
+                                // Sinon, on l'ajoute
+                                rapports.push(item);
+                            }
+                        });
+                    }
+                    totalRapports = dataArray.total;
+                    totalPages = Math.ceil(totalRapports / perPage);
+                    if (pageNumber >= totalPages - 1) {
+                        loadMoreBtn.classList.add("hidden");
+                    } else {
+                        loadMoreBtn.classList.remove("hidden");
+                    }
                     renderRapports();
                 } catch (error) {
                     console.error("Erreur lors du chargement des données: ", error)
@@ -590,16 +797,18 @@
                     hideLoader();
                 }
             }
-            fetchRapports();
+            fetchRapports(activeDateRange, activeDateSort);
 
-            async function fetchAllRapports() {
+            async function fetchAllRapports(req = null) {
                 showLoader();
-
+                if (!req) {
+                    req = "";
+                }
                 try {
-                    const res = await fetch(API_RAPPORT);
+                    const res = await fetch(API_RAPPORT + "?pager=0&offset=1000" + req);
                     const dataArray = await res.json();
-                    rapports = dataArray.rows;
-                    updateSummary(rapports);
+                    let data = dataArray.rows;
+                    updateSummary(data);
                 } catch (e) {
                     console.error("Erreur de chargement :", e);
                 } finally {
@@ -627,7 +836,7 @@
                     div.innerHTML = `
                             <div class="rapport-row px-4 py-3 cursor-pointer" data-id="${r.nid}">
                                 <div class="grid grid-cols-12 gap-2 items-center">
-                                    <div class="col-span-3 fs-c-7">
+                                    <div class="col-span-2 fs-c-7">
                                         <div class="text-gray-900">${r.field_date ? formatDate(r.field_date) : "Pas de date"}</div>
                                     </div>
                                     <div class="col-span-5">
@@ -647,7 +856,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-span-4 text-right fs-c-7">
+                                    <div class="col-span-5 text-right fs-c-7">
                                         <div class="text-gray-500">
                                         </div>
                                         <div class="text-green-600">${formatCurrency(r.field_total_rmb, "RMB")}</div>
@@ -753,7 +962,13 @@
                     document.body.style.overflow = '';
                 });
             }
+
             attachCloseHandler(closeReportModal, reportModal);
+            attachCloseHandler(closeReportModalAdd, reportModalAdd);
+
+            fabButton.addEventListener('click', function () {
+                reportModalAdd.classList.remove('hidden');
+            })
 
             function showLoader() {
                 document.getElementById("page-loader").classList.remove("hidden");
@@ -813,56 +1028,65 @@
                 return `${day} ${month} ${year}`;
             }
 
-            applyFilters.addEventListener('click', async () => {
-                pageNumber = 0;
-                let filtersFinalQuery = "";
-                loadMoreBtn.classList.add('hidden')
-                if (filterCategorySelect.value || filterClientSelect.value) {
-                    if (filterCategorySelect.value) {
-                        categorieFilterQuery = "&filters[field_category][val]=" + filterCategorySelect.value
-                        document.getElementById('active-category').textContent = filterCategorySelect.selectedOptions[0].text;
-                        document.getElementById('active-category').classList.remove('hidden');
-                        showRapportForm.classList.remove('hidden')
-                    }
-                    if (filterClientSelect.value) {
-                        clientFilterQuery = "&filters[field_client][val]=" + filterClientSelect.value
-                        document.getElementById('active-client').textContent = filterClientSelect.selectedOptions[0].text;
-                        document.getElementById('active-client').classList.remove('hidden');
-                    }
-                    filtersFinalQuery = categorieFilterQuery + clientFilterQuery;
-                    pushWithKey(queryBuilder, "category", filtersFinalQuery);
-                } else {
-                    pushWithKey(queryBuilder, "category", "");
-                    if (!filterCategorySelect.value) {
-                        document.getElementById('active-category').classList.add('hidden');
-                        showRapportForm.classList.add('hidden')
-                    }
-                    if (!filterClientSelect.value) {
-                        document.getElementById('active-client').classList.add('hidden');
-                    }
+            function getTransactionsRange(type = "today") {
+                const now = new Date();
+                let start, end;
+
+                if (type == "All") {
+                    return "";
                 }
-                filterPanel.classList.remove('active');
-                await fetchAllTransactions(concatQueries(queryBuilder));
-                await fetchTransactions(concatQueries(queryBuilder));
-            })
+
+                // Calcul du début et de la fin de "aujourd'hui"
+                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                const todayStartTs = Math.floor(todayStart.getTime() / 1000);
+                const todayEndTs = Math.floor(todayEnd.getTime() / 1000);
+
+                // Sinon, cas génériques 
+                if (type === "today") {
+                    start = todayStart;
+                    end = todayEnd;
+                }
+
+                if (type === "week") {
+                    const day = now.getDay();
+                    const diffToMonday = (day === 0 ? -6 : 1 - day);
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday, 0, 0, 0);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    end.setHours(23, 59, 59);
+                }
+
+                if (type === "month") {
+                    start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+                }
+                const startTs = Math.floor(start.getTime() / 1000);
+                const endTs = Math.floor(end.getTime() / 1000);
+
+                let rangeQuery = `&filters[created][op]=BETWEEN&filters[created][val][]=${startTs}&filters[created][val][]=${endTs}`;
+                return rangeQuery;
+            }
 
             sortByDate.addEventListener('click', async () => {
                 pageNumber = 0;
                 loadMoreBtn.classList.add('hidden')
+                let date = "desc";
                 if (sortByDate.getAttribute("data-date") == "asc") {
                     sortByDate.setAttribute("data-date", "desc");
-                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=desc');
+                    date = "desc";
                 } else {
                     sortByDate.setAttribute("data-date", "asc");
-                    pushWithKey(queryBuilder, "dateSort", '&sort[val]=field_date&sort[op]=asc');
+                    date = "asc";
                 }
-                await fetchAllTransactions(concatQueries(queryBuilder));
-                await fetchTransactions(concatQueries(queryBuilder));
+                activeDateSort = date;
+                await fetchRapports(activeDateRange, date);
+                await fetchAllRapports(activeDateRange, date);
             })
 
             loadMoreBtn.addEventListener('click', function () {
                 pageNumber++;
-                fetchTransactions(concatQueries(queryBuilder));
+                fetchRapports(activeDateRange, activeDateSort);
             });
 
             // Toast handling
@@ -948,16 +1172,16 @@
                     const dataArray = await res.json();
                     const clients = dataArray.rows;
                     allClients = clients;
-                    const filterClientSelect = document.getElementById("filterClientSelect");
+                    const select = document.getElementById("client");
                     // Vider les options existantes sauf la première
-                    filterClientSelect.innerHTML = '<option value="">Tous les clients</option>';
+                    select.innerHTML = '<option value="">Sélectionnez un client</option>';
 
                     // Ajouter les clients depuis l'API
                     clients.forEach((client) => {
-                        const option1 = document.createElement("option");
-                        option1.value = client.nid// option value formatée
-                        option1.textContent = client.field_name;
-                        filterClientSelect.appendChild(option1);
+                        const option = document.createElement("option");
+                        option.value = client.nid// option value formatée
+                        option.textContent = client.field_name;
+                        select.appendChild(option);
                     });
                 } catch (error) {
                     console.error("Erreur lors du chargement des clients :", error);
@@ -972,7 +1196,7 @@
     <script id="categories">
         document.addEventListener("DOMContentLoaded", function () {
             const API_BASE_CATEGORIES =
-                "https://miandrilala.online/api/v2/taxonomy_term/category";
+                "https://miandrilala.online/api/v2/taxonomy_term/category?fields[]=tid&fields[]=name&sort[val]=name&sort[op]=asc";
 
             async function loadSectors() {
                 try {
@@ -980,37 +1204,22 @@
                     const dataArray = await res.json();
                     const categories = dataArray.rows;
 
-                    const filterCategorySelect = document.getElementById("filterCategorySelect");
-
+                    const select = document.getElementById("sector");
                     // Vider les options existantes sauf la première
-                    filterCategorySelect.innerHTML = '<option value="">Tous les categories</option>';
+                    select.innerHTML = '<option value="">Sélectionnez un secteur</option>';
 
                     // Ajouter les catégories depuis l'API
                     categories.forEach((cat) => {
-                        const option1 = document.createElement("option");
-                        option1.value = cat.tid// option value formatée
-                        option1.textContent = cat.name;
-                        filterCategorySelect.appendChild(option1);
+                        const option = document.createElement("option");
+                        option.value = cat.tid// option value formatée
+                        option.textContent = cat.name;
+                        select.appendChild(option);
                     });
                 } catch (error) {
                     console.error("Erreur lors du chargement des secteurs :", error);
                 }
             }
             loadSectors();
-        });
-
-    </script>
-    <script id="filterToggle">
-        document.addEventListener('DOMContentLoaded', function () {
-            const filterBtn = document.getElementById('filterBtn');
-            const filterPanel = document.getElementById('filterPanel');
-            const closeFilterBtn = document.getElementById('closeFilterBtn');
-            filterBtn.addEventListener('click', function () {
-                filterPanel.classList.add('active');
-            });
-            closeFilterBtn.addEventListener('click', function () {
-                filterPanel.classList.remove('active');
-            });
         });
     </script>
     <script id="mobileSidebarScript">

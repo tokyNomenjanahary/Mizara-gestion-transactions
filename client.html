@@ -241,6 +241,10 @@
                 <div class="space-y-3" id="clientList">
                     <!-- Client will be populated here -->
                 </div>
+                <div class="px-4 py-4 text-center">
+                    <button id="loadMoreBtn" class="text-primary text-sm font-medium cursor-pointer hidden">Voir
+                        plus</button>
+                </div>
 
                 <div id="emptyState" class="text-center hidden">
                     <div class="w-16 h-16 flex items-center justify-center mx-auto mb-4 bg-gray-100 rounded-full">
@@ -314,16 +318,43 @@
         const cancelEdit = document.getElementById('cancelEdit');
         const cancelDelete = document.getElementById('cancelDelete');
         const confirmDelete = document.getElementById('confirmDelete');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
         let clients = [];
         let editingId = null;
         let deletingId = null;
+        let pageNumber = 0;
+        let totalClient = 0;
+        let totalPages = 0;
+        let perPage = 10;
 
         async function fetchClients() {
             showLoader();
             try {
-                const res = await fetch(API_CLIENT + "?sort[val]=nid&sort[op]=desc&pager=0&offset=1000");
+                const res = await fetch(API_CLIENT + "?sort[val]=nid&sort[op]=desc&pager=" + pageNumber + "&offset=" + perPage);
                 const dataArray = await res.json();
-                clients = dataArray.rows;
+
+                data = dataArray.rows;
+                if (pageNumber == 0) {
+                    clients = data;
+                } else {
+                    data.forEach((item) => {
+                        const index = clients.findIndex((cl) => cl.nid === item.nid);
+                        if (index !== -1) {
+                            // Si l'élément existe déjà, on le remplace
+                            clients[index] = item;
+                        } else {
+                            // Sinon, on l'ajoute
+                            clients.push(item);
+                        }
+                    });
+                }
+                totalClient = dataArray.total;
+                totalPages = Math.ceil(totalClient / perPage);
+                if (pageNumber >= totalPages - 1) {
+                    loadMoreBtn.classList.add("hidden");
+                } else {
+                    loadMoreBtn.classList.remove("hidden");
+                }
                 renderClients();
                 return true;
             } catch (error) {
@@ -332,6 +363,11 @@
                 hideLoader();
             }
         }
+
+        loadMoreBtn.addEventListener('click', function () {
+            pageNumber++;
+            fetchClients();
+        });
 
         function renderClients() {
             const container = document.getElementById('clientList');
@@ -409,8 +445,8 @@
         }
 
         function getHistory(id, name) {
-            showLoader();          
-            try {      
+            showLoader();
+            try {
                 let item = {
                     id: id,
                     name: name
