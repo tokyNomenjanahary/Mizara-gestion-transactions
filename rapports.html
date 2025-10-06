@@ -485,7 +485,7 @@
                 </div>
             </div>
         </div>
-        <div class="fixed bottom-16 right-6 z-30">
+        <div class="fixed bottom-24 right-6 z-30">
             <button id="fabButton"
                 class="w-10 h-10 bg-primary hover:bg-primary-dark shadow-lg rounded-full flex items-center justify-center cursor-pointer transition-transform duration-200">
                 <i class="ri-add-fill text-white text-2xl"></i>
@@ -659,7 +659,9 @@
             function showFormAndDetails(rapport) {
                 reportModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
-                rDescription.value = rapport.field_description;
+                if (rapport.field_description) {
+                    rDescription.value = rapport.field_description;
+                }
                 const rawDate = rapport.field_date;
                 const onlyDate = rawDate.split("T")[0];
                 dateRapprot.value = onlyDate;
@@ -815,7 +817,7 @@
                     hideLoader();
                 }
             }
-            fetchAllRapports();
+            fetchAllRapports(activeDateRange);
 
             function renderRapports() {
                 rapportsContainer.innerHTML = "";
@@ -1148,6 +1150,7 @@
                     if (!res.ok) throw new Error("Échec lors de la suppression");
 
                     rapports = rapports.filter(r => r.nid != id);
+                    await fetchAllRapports(activeDateRange);
                     renderRapports();
                 } catch (err) {
                     console.error("Erreur de suppression :", err);

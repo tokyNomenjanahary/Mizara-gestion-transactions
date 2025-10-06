@@ -343,7 +343,7 @@
             emptyState.classList.add('hidden');
 
             container.innerHTML = exchanges.map(exchange => `
-            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors hover:bg-primary/20">
                 <div class="flex items-center">
                     <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-lg mr-3">
                         <i class="ri-bookmark-line text-primary"></i>
@@ -353,14 +353,14 @@
                 <div class="flex items-center space-x-2">
                     <button 
                         onclick="editExchange(${exchange.tid})" 
-                        class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        class="w-8 h-8 flex items-center justify-center text-white hover:text-primary hover:bg-primary/10 rounded-full bg-primary transition-colors"
                         title="Modifier la catégorie"
                     >
                         <i class="ri-edit-line ri-sm"></i>
                     </button>
                     <button 
                         onclick="showDeleteModal(${exchange.tid})" 
-                        class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        class="w-8 h-8 flex items-center justify-center text-white hover:text-red-600 hover:bg-red-50 rounded-full bg-red-500 transition-colors"
                         title="Supprimer"
                     >
                         <i class="ri-delete-bin-line ri-sm"></i>

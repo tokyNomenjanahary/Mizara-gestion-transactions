@@ -96,6 +96,20 @@
             font-size: 0.7rem;
         }
 
+        .menu-section button.active i.ri-arrow-down-s-line {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .submenu.active {
+            max-height: 200px;
+        }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -251,6 +265,40 @@
         </div>
         <nav class="p-4">
             <ul class="space-y-2">
+                <div class="menu-section">
+                    <button class="w-full flex items-center justify-between p-2 rounded-button cursor-pointer">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-bank-card-line"></i>
+                            </div>
+                            <span class="ml-3">Transactions</span>
+                        </div>
+                        <i class="ri-arrow-down-s-line transition-transform"></i>
+                    </button>
+                    <div class="submenu pl-4">
+                        <a href="#" class="block py-2 px-4 text-sm rounded-md bg-primary/5 text-primary">Ajout Nouv.</a>
+                        <a href="#" class="block py-2 px-4 text-sm text-gray-600">Ajout multi tran.</a>
+                        <a href="#" class="block py-2 px-4 text-sm text-gray-600">Historiques</a>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <button class="w-full flex items-center justify-between p-2 rounded-button cursor-pointer">
+                        <div class="flex items-center text-gray-700">
+                            <div class="w-5 h-5 flex items-center justify-center">
+                                <i class="ri-bank-card-line"></i>
+                            </div>
+                            <span class="ml-3">Mvola</span>
+                        </div>
+                        <i class="ri-arrow-down-s-line transition-transform"></i>
+                    </button>
+                    <div class="submenu pl-4">
+                        <a href="#" class="block py-2 px-4 text-sm rounded-md bg-primary/5 text-primary">Transfert</a>
+                        <a href="#" class="block py-2 px-4 text-sm text-gray-600">Histo des trans</a>
+                        <a href="#" class="block py-2 px-4 text-sm text-gray-600">Retrait</a>
+                        <a href="#" class="block py-2 px-4 text-sm text-gray-600">Histo des retraits</a>
+                    </div>
+                </div>
+
                 <li>
                     <a href="#"
                         class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary hidden">
@@ -262,7 +310,7 @@
                 </li>
                 <li>
                     <a href="/gestion/transaction"
-                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary hidden">
                         <div class="w-5 h-5 flex items-center justify-center">
                             <i class="ri-bank-card-line"></i>
                         </div>
@@ -1912,6 +1960,33 @@
         // initial + on resize
         clampBodyWidth();
         window.addEventListener('resize', clampBodyWidth);
+    </script>
+
+    <script id="accordion-menu">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Accordion Menu
+            const menuSections = document.querySelectorAll('.menu-section');
+            menuSections.forEach(section => {
+                const button = section.querySelector('button');
+                const submenu = section.querySelector('.submenu');
+                const arrow = button.querySelector('.ri-arrow-down-s-line');
+                button.addEventListener('click', () => {
+                    const isActive = button.classList.contains('active');
+                    // Close all other submenus
+                    menuSections.forEach(otherSection => {
+                        if (otherSection !== section) {
+                            otherSection.querySelector('button').classList.remove('active');
+                            otherSection.querySelector('.submenu').classList.remove('active');
+                            otherSection.querySelector('.ri-arrow-down-s-line').style.transform = 'rotate(0deg)';
+                        }
+                    });
+                    // Toggle current submenu
+                    button.classList.toggle('active');
+                    submenu.classList.toggle('active');
+                    arrow.style.transform = isActive ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+            });
+        });
     </script>
 </body>
 
