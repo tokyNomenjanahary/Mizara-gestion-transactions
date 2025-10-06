@@ -455,6 +455,8 @@
                 window.location = 'file:///home/alice/Documents/mvola/gestion-git/update-history.html';
             } catch (error) {
                 showErrorToast("Une erreur c'est produite");
+            } finally {
+                hideLoader();
             }
         }
 

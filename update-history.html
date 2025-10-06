@@ -136,7 +136,7 @@
     <!-- <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div> -->
     <!-- loader -->
     <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm"
-        style="z-index: 999999;">
+        style="z-index: 999;">
         <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
     <!-- Transaction modal for details -->
@@ -1175,7 +1175,7 @@
                                         </div>
                                     </div>
                                     <div class="col-span-6 text-right fs-c-7">
-                                        <div class="text-gray-500" onclick="event.stopPropagation(); showEditStatusModal(${t.nid}, '${t.field_status}')">
+                                        <div class="text-gray-500 w-min ms-auto" onclick="event.stopPropagation(); showEditStatusModal(${t.nid}, '${t.field_status}')">
                                             <span class="inline-flex items-center rounded-md bg-purple-400/10 px-2 py-1 text-xs font-medium text-purple-500 ring-1 ring-inset ring-purple-400/20 text-center">
                                                 ${t.field_status ? t.field_status : "Draft"}
                                             </span>

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestion Ariary</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -136,7 +137,7 @@
     <!-- <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-30 hidden lg:hidden"></div> -->
     <!-- loader -->
     <div id="page-loader" class="fixed inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm hidden"
-        style="z-index: 999999;">
+        style="z-index: 999;">
         <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
 
@@ -167,7 +168,7 @@
         </div>
     </div>
 
-    <!-- modal for Report form -->
+    <!-- modal for show Report form -->
     <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
             <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
@@ -178,39 +179,62 @@
                     </button>
                 </div>
             </div>
-            <div class="p-4 space-y-6">
+            <div class="px-4 pt-2 space-y-6">
                 <div id="reportForm" class="space-y-6">
                     <div>
                         <div class="space-y-4 mb-4">
                             <div class="flex justify-between py-2 border-b border-gray-100 items-center">
-                                <span class="text-sm text-gray-600">Catégorie</span>
+                                <span class="text-sm font-medium text-gray-700">Catégorie</span>
                                 <span id="rCategorie"
                                     class="inline-flex items-center rounded-md bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20 text-center">
 
                                 </span>
                             </div>
                             <div class="flex justify-between py-2 border-b border-gray-100">
-                                <span class="text-sm text-gray-600">Client :</span>
+                                <span class="text-sm font-medium text-gray-700">Client :</span>
                                 <div id="rClientList">
 
                                 </div>
                             </div>
                             <div class=" flex justify-between py-2 border-b border-gray-100 items-center">
-                                <span class="text-sm text-gray-600">Solde</span>
+                                <span class="text-sm font-medium text-gray-700">Solde</span>
                                 <span class="text-sm text-primary" id="rSoldeTotal"></span>
                             </div>
                         </div>
+                        <div class="mb-4">
+                            <label for="amountRmbEdit" class="block text-sm font-medium text-gray-700 mb-1">Solde
+                                (RMB)</label>
+                            <div class="relative">
+                                <input type="text" id="amountRmbEdit"
+                                    class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"
+                                    placeholder="Entrez le montant en RMB" />
+                            </div>
+                            <p id="amountRmbEditError" class="text-red-500 text-xs mt-2 hidden"></p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="amountArEdit" class="block text-sm font-medium text-gray-700 mb-1">Solde
+                                (Ariary)</label>
+                            <div class="relative">
+                                <input type="number" id="amountArEdit"
+                                    class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"
+                                    placeholder="Entrez le montant en Ariary" />
+                            </div>
+                            <p id="amountArEditError" class="text-red-500 text-xs mt-2 hidden"></p>
+                        </div>
                         <div class="space-y-2">
                             <div class="mb-4">
-                                <label class="block mb-2 text-sm text-gray-600" for="dateRapprot">Date</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700"
+                                    for="dateRapprot">Date</label>
                                 <input type="date" id="dateRapprot"
-                                    class="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none">
+                                    class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm">
                             </div>
                             <div class="mb-4">
-                                <label for="rDescription" class="block text-sm text-gray-600 mb-1">Description</label>
+                                <label for="rDescription"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <div class="relative">
-                                    <textarea rows="3" id="rDescription" placeholder="Description ..."
-                                        class="w-full p-3 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"></textarea>
+                                    <textarea rows="2" id="rDescription" placeholder="Description ..."
+                                        class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"></textarea>
                                 </div>
                                 <p id="rDescriptionError" class="text-red-500 text-xs mt-2 hidden"></p>
                             </div>
@@ -230,7 +254,7 @@
         </div>
     </div>
 
-    <!-- modal for Report form -->
+    <!-- modal for add Report form -->
     <div id="reportModalAdd" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[90vh] overflow-y-auto">
             <div class="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-50">
@@ -318,7 +342,7 @@
                                 <label for="rDescriptionAdd"
                                     class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <div class="relative">
-                                    <textarea rows="3" id="rDescriptionAdd" placeholder="Description ..."
+                                    <textarea rows="2" id="rDescriptionAdd" placeholder="Description ..."
                                         class="w-full p-2 border border-gray-300 rounded-button focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-sm"></textarea>
                                 </div>
                                 <p id="rDescriptionErrorAdd" class="text-red-500 text-xs mt-2 hidden"></p>
@@ -485,6 +509,12 @@
                 </div>
             </div>
         </div>
+        <div class="fixed bottom-36 right-6 z-30">
+            <button id="exportExcel"
+                class="w-10 h-10 bg-purple-500 hover:bg-primary-dark shadow-lg rounded-full flex items-center justify-center cursor-pointer transition-transform duration-200 hidden">
+                <i class="ri-upload-2-line text-white text-2xl"></i>
+            </button>
+        </div>
         <div class="fixed bottom-24 right-6 z-30">
             <button id="fabButton"
                 class="w-10 h-10 bg-primary hover:bg-primary-dark shadow-lg rounded-full flex items-center justify-center cursor-pointer transition-transform duration-200">
@@ -496,6 +526,7 @@
     <script id="report-logic">
         document.addEventListener("DOMContentLoaded", function () {
             let rapports = [];
+            let toExport = [];
             let rapport = null;
             let deletingId = null;
             const rapportsContainer = document.getElementById('rapports-container');
@@ -506,6 +537,8 @@
             const arSumary = document.getElementById('summary-ar');
             const fabButton = document.getElementById('fabButton');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const exportExcel = document.getElementById('exportExcel');
+
 
             // client variable
             const API_BASE_CLIENTS =
@@ -526,6 +559,8 @@
             const addReportForm = document.getElementById('addReportForm');
             const closeReportModalAdd = document.getElementById('closeReportModalAdd');
             const rDescription = document.getElementById('rDescription');
+            const amountRmbEdit = document.getElementById('amountRmbEdit');
+            const amountArEdit = document.getElementById('amountArEdit');
             const dateRapprot = document.getElementById('dateRapprot');
             const rCategorie = document.getElementById('rCategorie');
             const rClientList = document.getElementById('rClientList');
@@ -556,6 +591,18 @@
             const sector = document.getElementById('sector');
             const clientError = document.getElementById('clientError');
             const client = document.getElementById('client');
+
+            dateRapprotAdd
+
+            // datetime-functionality
+            const now = new Date();
+            const maxDate = now;
+
+            const year = maxDate.getFullYear();
+            const month = String(maxDate.getMonth() + 1).padStart(2, '0');
+            const day = String(maxDate.getDate()).padStart(2, '0');
+
+            dateRapprotAdd.value = `${year}-${month}-${day}`;
 
             // --- Fonction de validation ---
             function validateReportForm() {
@@ -605,6 +652,32 @@
 
                 return isValid;
             }
+
+            // --- Fonction de validation ---
+            function validateReportFormEdit() {
+                let isValid = true;
+
+                // reset erreurs
+                amountRmbEditError.classList.add('hidden');
+                amountArEditError.classList.add('hidden');
+
+                // montant Ariary
+                if (amountArEdit.value.trim() === "" || isNaN(amountArEdit.value)) {
+                    amountArEditError.textContent = "Montant Ar invalide";
+                    amountArEditError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                // montant RMB
+                if (amountRmbEdit.value.trim() === "" || isNaN(amountRmbEdit.value)) {
+                    amountRmbEditError.textContent = "Montant RMB invalide";
+                    amountRmbEditError.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
 
             // --- Listener bouton ---
             addReport.addEventListener('click', function (e) {
@@ -662,6 +735,8 @@
                 if (rapport.field_description) {
                     rDescription.value = rapport.field_description;
                 }
+                amountRmbEdit.value = rapport.field_total_rmb;
+                amountArEdit.value = rapport.field_total_ariary;
                 const rawDate = rapport.field_date;
                 const onlyDate = rawDate.split("T")[0];
                 dateRapprot.value = onlyDate;
@@ -682,32 +757,51 @@
             }
 
             saveReport.addEventListener('click', async function () {
-                showLoader();
-                try {
-                    const newReport = {
-                        "nid": parseInt(rId),
-                        "title": "rapport",
-                        "entity_type": "node",
-                        "bundle": "rapports",
-                        "body": "<h1>Rapport</h1>",
-                        "uid": 1,
-                        "status": 1,
-                        "field_date": dateRapprot.value,
-                        "field_description": rDescription.value,
-                    }
-                    const res = await fetch(`${API_BASE}`, {
-                        method: "POST",
-                        body: JSON.stringify(newReport),
-                    });
+                if (validateReportFormEdit) {
+                    showLoader();
+                    try {
+                        const newReport = {
+                            "nid": parseInt(rId),
+                            "title": "rapport",
+                            "entity_type": "node",
+                            "bundle": "rapports",
+                            "body": "<h1>Rapport</h1>",
+                            "uid": 1,
+                            "status": 1,
+                            "field_date": dateRapprot.value,
+                            "field_description": rDescription.value,
+                            "field_total_rmb": amountRmbEdit.value,
+                            "field_total_ariary": amountArEdit.value,
+                        }
+                        const res = await fetch(`${API_BASE}`, {
+                            method: "POST",
+                            body: JSON.stringify(newReport),
+                        });
 
-                    if (!res.ok) throw new Error("Échec lors de la modification");
-                } catch (error) {
-                    console.error("Des erreurs sont survenu :", error);
-                } finally {
-                    reportModal.classList.add('hidden');
-                    showSuccessToast('Rapport modifier avec succès');
-                    handleFilterClick('filter-today', "today");
-                    hideLoader();
+                        if (!res.ok) throw new Error("Échec lors de la modification");
+                        // rapports
+                        const reportToUpdate = rapports.find(r => r.nid == parseInt(rId));
+                        if (reportToUpdate) {
+                            reportToUpdate.field_total_rmb = amountRmbEdit.value;
+                            reportToUpdate.field_total_ariary = amountArEdit.value;
+                        }
+                        document.querySelectorAll('[data-select]').forEach(el => {
+                            const key = el.getAttribute('data-select');
+                            if (key === `rmb-${parseInt(rId)}`) {
+                                el.textContent = formatCurrency(amountRmbEdit.value, "RMB");
+                            } else if (key === `ar-${parseInt(rId)}`) {
+                                el.textContent = formatCurrency(amountArEdit.value, "AR");
+                            }
+                        });
+
+                        updateSummary(rapports);
+                    } catch (error) {
+                        console.error("Des erreurs sont survenu :", error);
+                    } finally {
+                        reportModal.classList.add('hidden');
+                        showSuccessToast('Rapport modifier avec succès');
+                        hideLoader();
+                    }
                 }
 
             })
@@ -810,6 +904,7 @@
                     const res = await fetch(API_RAPPORT + "?pager=0&offset=1000" + req);
                     const dataArray = await res.json();
                     let data = dataArray.rows;
+                    toExport = data;
                     updateSummary(data);
                 } catch (e) {
                     console.error("Erreur de chargement :", e);
@@ -832,6 +927,7 @@
                             </div>`;
                     return;
                 }
+                exportExcel.classList.remove('hidden')
                 emptyReport.classList.add('hidden')
                 rapports.forEach(r => {
                     const div = document.createElement("div");
@@ -861,8 +957,8 @@
                                     <div class="col-span-5 text-right fs-c-7">
                                         <div class="text-gray-500">
                                         </div>
-                                        <div class="text-green-600">${formatCurrency(r.field_total_rmb, "RMB")}</div>
-                                        <div class="text-purple-600 mt-1">${formatCurrency(r.field_total_ariary, "AR")}</div>
+                                        <div class="text-green-600" data-select="rmb-${r.nid}">${formatCurrency(r.field_total_rmb, "RMB")}</div>
+                                        <div class="text-purple-600 mt-1" data-select="ar-${r.nid}">${formatCurrency(r.field_total_ariary, "AR")}</div>
                                     </div>
                                 </div>
                             </div>`;
@@ -1191,6 +1287,64 @@
                 }
             }
             loadClients();
+
+            document.getElementById("exportExcel").addEventListener("click", function () {
+
+                // 🔹 Construire les données principales
+                const headers = ["Date", "Type", "Client", "Montant RMB", "Montant Ar"];
+                const data = toExport.map(r => [
+                    r.field_date,
+                    r.title,
+                    r.field_client || "",
+                    parseFloat(r.field_total_rmb || 0),
+                    parseFloat(r.field_total_ariary || 0)
+                ]);
+
+                // 🔹 Calculer les totaux
+                const totalRmb = data.reduce((sum, item) => sum + (item[3] || 0), 0);
+                const totalAr = data.reduce((sum, item) => sum + (item[4] || 0), 0);
+
+                // 🔹 Ajouter la ligne de total
+                data.push(["", "", "TOTAL", totalRmb, totalAr]);
+
+                // 🔹 Fusionner les en-têtes et les données
+                const worksheetData = [headers, ...data];
+
+                // 🔹 Créer la feuille Excel
+                const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+
+                // 🔹 Ajuster automatiquement la largeur des colonnes
+                const colWidths = headers.map((header, i) => {
+                    const maxLength = worksheetData.reduce((acc, row) => {
+                        const val = row[i] ? row[i].toString() : "";
+                        return Math.max(acc, val.length);
+                    }, header.length);
+                    return { wch: maxLength + 2 };
+                });
+                ws['!cols'] = colWidths;
+
+                // 🔹 Ajouter un peu de mise en forme texte simple (gras uniquement)
+                // => Compatible toutes versions
+                ws["A1"].v = "Date";
+                ws["B1"].v = "Type";
+                ws["C1"].v = "Client";
+                ws["D1"].v = "Montant RMB (¥)";
+                ws["E1"].v = "Montant Ar (Ar)";
+
+                // 🔹 Créer le classeur et ajouter la feuille
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Rapports");
+
+                // 🔹 Nom dynamique du fichier
+                const now = new Date();
+                const yyyy = now.getFullYear();
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const dd = String(now.getDate()).padStart(2, '0');
+                const filename = `rapports-${yyyy}-${mm}-${dd}.xlsx`;
+
+                // 🔹 Exporter le fichier
+                XLSX.writeFile(wb, filename);
+            });
 
             window.showDeleteModal = showDeleteModal;
         });
