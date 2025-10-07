@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion Ariary</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: "#4F46E5", secondary: "#8B5CF6" },
+                    borderRadius: {
+                        none: "0px",
+                        sm: "4px",
+                        DEFAULT: "8px",
+                        md: "12px",
+                        lg: "16px",
+                        xl: "20px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        full: "9999px",
+                        button: "8px",
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" />
+
+    <style>
+        :where([class^="ri-"])::before {
+            content: "\f3c2";
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            /* font-size: 0.875rem; */
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .transaction-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .scrollBar-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .filter-panel {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .filter-panel.active {
+            transform: translateY(0);
+        }
+
+        .transaction-row {
+            transition: all 0.2s ease;
+        }
+
+        .transaction-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .sort-indicator {
+            transition: transform 0.2s ease;
+        }
+
+        .sort-asc {
+            transform: rotate(0deg);
+        }
+
+        .sort-desc {
+            transform: rotate(180deg);
+        }
+
+        .fs-c-7 {
+            font-size: 0.7rem;
+        }
+
+        .z-c-99 {
+            z-index: 99999 !important;
+        }
+
+        .menu-section button.active i.ri-arrow-down-s-line {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .submenu.active {
+            max-height: 200px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen relative">
+    <!-- loader -->
+    <div id="page-loader"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-sm hidden">
+        <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+    <!-- Navbar -->
+    <aside
+        class="w-64 bg-white shadow-lg h-screen fixed left-0 top-0 overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-10">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
+            <button id="closeSidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-close-line"></i>
+                </div>
+            </button>
+        </div>
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary hidden">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-home-line"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/transaction"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-bank-card-line"></i>
+                        </div>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/clients"
+                        class="flex items-center space-x-3 p-2 rounded-button bg-primary/5 text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                        <span>Client</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/gestion/categories"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-bookmark-line"></i>
+                        </div>
+                        <span>Catégories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/transactions/historique"
+                        class="flex items-center space-x-3 p-2 rounded-button text-gray-700 hover:bg-primary/5 hover:text-primary">
+                        <div class="w-5 h-5 flex items-center justify-center">
+                            <i class="ri-history-line"></i>
+                        </div>
+                        <span>Historiques</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="pb-4 px-4 flex-1 lg:ml-64">
+        <div class="flex items-center justify-between p-4 lg:hidden bg-white shadow-sm">
+            <button id="openSidebar" class="text-gray-500 hover:text-gray-700">
+                <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-menu-line"></i>
+                </div>
+            </button>
+            <h1 class="font-['Pacifico'] text-xl text-primary">logo</h1>
+            <div class="w-5"></div>
+        </div>
+        <div class="max-w-md mx-auto p-4 lg:p-6 bg-white shadow-lg rounded-lg my-4 lg:my-8">
+            <header class="mb-6 text-center">
+                <h1 class="text-2xl font-bold text-gray-800">Historique des transferts</h1>
+                <p class="text-gray-600 text-sm mt-1">Chaîne formatée basée sur vos entrées</p>
+            </header>
+            <div class="mt-8 border-t pt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex justify-between w-full items-center gap-4">
+                        <p class="text-sm text-gray-600">Total: <span id="totalAmount" class="font-medium">0 Ar</span>
+                        </p>
+                        <button type="button" id="clearHistoryBtn"
+                            class="text-sm text-red-500 hover:text-red-700 whitespace-nowrap !rounded-button hidden">
+                            Effacer l'historique
+                        </button>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4 mb-4">
+                    <div class="flex rounded-button overflow-hidden border">
+                        <input id="searchInput" type="text" placeholder="Rechercher un code..."
+                            class="flex-grow p-2 outline-none w-2/3" />
+                        <button id="searchBtn" class="p-2 text-gray-500 hover:text-primary">
+                            <i class="ri-search-line text-lg"></i>
+                        </button>
+                    </div>
+
+                    <select id="sortSelect" class="w-full p-2 border rounded-button">
+                        <option value="desc">Plus récent</option>
+                        <option value="asc">Plus ancien</option>
+                    </select>
+                </div>
+                <div id="historyContainer" class="max-h-60 overflow-y-auto rounded-md border border-gray-200">
+                    <ul id="historyList" class="divide-y divide-gray-200"></ul>
+                </div>
+                <p id="emptyHistory" class="text-gray-500 text-sm text-center py-4">Aucun historique</p>
+            </div>
+        </div>
+    </main>
+    <script id="historyManagementScript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const historyList = document.getElementById("historyList");
+            const emptyHistory = document.getElementById("emptyHistory");
+            const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+            const historyContainer = document.getElementById("historyContainer");
+
+            const searchBtn = document.getElementById("searchBtn");
+            const sortSelect = document.getElementById("sortSelect");
+            const searchInput = document.getElementById("searchInput");
+
+            // Load history au démarrage
+            loadHistory();
+
+            // Fonction pour charger l’historique
+            function loadHistory() {
+                let history = JSON.parse(localStorage.getItem("codeHistory") || "[]");
+
+                // --- Filtrage recherche ---
+                const searchValue = searchInput.value.trim().toLowerCase();
+                if (searchValue) {
+                    history = history.filter(item => item.code.toLowerCase().includes(searchValue));
+                }
+
+                // --- Tri par date ---
+                const sortValue = sortSelect.value;
+                if (sortValue === "desc") {
+                    history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                } else if (sortValue === "asc") {
+                    history.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                }
+
+                // Nettoyer la liste
+                historyList.innerHTML = "";
+                let totalAmount = 0;
+
+                // Calcul du montant total
+                history.forEach((item) => {
+                    const match = item.code.match(/\*(\d+)\*1#$/);
+                    if (match) {
+                        totalAmount += parseInt(match[1]);
+                    }
+                });
+
+                document.getElementById("totalAmount").textContent =
+                    totalAmount.toLocaleString("fr-FR") + " Ar";
+
+                if (history.length === 0) {
+                    emptyHistory.classList.remove("hidden");
+                    historyContainer.classList.add("hidden");
+                } else {
+                    emptyHistory.classList.add("hidden");
+                    historyContainer.classList.remove("hidden");
+
+                    history.forEach((item, index) => {
+                        const amount = item.code.match(/\*(\d+)\*1#$/)[1];
+                        const li = document.createElement("li");
+                        li.className = index % 2 === 0 ? "bg-white" : "bg-gray-50";
+
+                        const date = new Date(item.timestamp);
+                        const formattedDate = date.toLocaleString("fr-FR", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+
+                        li.innerHTML = `
+                            <div class="flex justify-between items-center p-3">
+                                <div class="fs-c-7 w-2/3">
+                                    <p class="history-code font-medium text-gray-800 break-all">
+                                        ${item.code}
+                                        ${item.paid ? '<span class="payment-status text-xs font-medium text-green-500 ml-2">Payé</span>' : ""}
+                                    </p>
+                                    <p class="text-gray-600 mt-1">Montant: ${parseInt(amount).toLocaleString("fr-FR")} Ar</p>
+                                    <p class="text-xs text-gray-500">${formattedDate}</p>
+                                    <p class="history-copy-msg text-xs text-green-500 hidden">Copied!</p>
+                                </div>
+                                <div class="flex fs-c-7 w-1/3 justify-around">
+                                    <button class="history-call-btn text-gray-500 hover:text-primary whitespace-nowrap !rounded-button">
+                                        <div class="w-5 h-5 flex items-center justify-center">
+                                            <i class="ri-phone-line"></i>
+                                        </div>
+                                    </button>
+                                    <button class="history-copy-btn text-gray-500 hover:text-primary whitespace-nowrap !rounded-button">
+                                        <div class="w-5 h-5 flex items-center justify-center">
+                                            <i class="ri-file-copy-line"></i>
+                                        </div>
+                                    </button>
+                                    <button class="remove-btn text-gray-500 hover:text-red-500 whitespace-nowrap !rounded-button"
+                                        data-id="${index}">
+                                        <div class="w-5 h-5 flex items-center justify-center">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        historyList.appendChild(li);
+                    });
+
+                    // Suppression d'un élément
+                    historyList.querySelectorAll(".remove-btn").forEach((btn) => {
+                        btn.addEventListener("click", function () {
+                            const id = parseInt(this.getAttribute("data-id"));
+                            let history = JSON.parse(localStorage.getItem("codeHistory") || "[]");
+                            history.splice(id, 1);
+                            localStorage.setItem("codeHistory", JSON.stringify(history));
+                            loadHistory();
+                        });
+                    });
+                }
+            }
+
+            // Clear history
+            clearHistoryBtn.addEventListener("click", function () {
+                localStorage.removeItem("codeHistory");
+                loadHistory();
+            });
+
+            // Recherche + Tri
+            searchBtn.addEventListener("click", () => loadHistory());
+            sortSelect.addEventListener("change", () => loadHistory());
+        });
+    </script>
+    <script id="serviceWorkerScript">
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js").catch((err) => {
+                    console.log("ServiceWorker registration failed");
+                });
+            });
+        }
+        const swContent = `
+                            const CACHE_NAME = 'mvola-code-generator-v1';
+                            const urlsToCache = [
+                              '/',
+                              '/index.html',
+                              'https://cdn.tailwindcss.com/3.4.16',
+                              'https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css',
+                              'https://fonts.googleapis.com/css2?family=Pacifico&display=swap'
+                            ];
+                            self.addEventListener('install', event => {
+                              event.waitUntil(
+                                caches.open(CACHE_NAME)
+                                  .then(cache => cache.addAll(urlsToCache))
+                              );
+                            });
+                            self.addEventListener('fetch', event => {
+                              event.respondWith(
+                                caches.match(event.request)
+                                  .then(response => response || fetch(event.request))
+                              );
+                            });
+                            `;
+        const blob = new Blob([swContent], { type: "application/javascript" });
+        const swUrl = URL.createObjectURL(blob);
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register(swUrl).catch(console.error);
+        }
+    </script>
+
+
+    <script id="mobileSidebarScript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebar = document.querySelector("aside");
+            const openSidebarBtn = document.getElementById("openSidebar");
+            const closeSidebarBtn = document.getElementById("closeSidebar");
+            const overlay = document.getElementById("overlay");
+            function openSidebar() {
+                sidebar.classList.remove("-translate-x-full");
+                overlay.classList.remove("hidden");
+                document.body.style.overflow = "hidden";
+            }
+            function closeSidebar() {
+                sidebar.classList.add("-translate-x-full");
+                overlay.classList.add("hidden");
+                document.body.style.overflow = "";
+            }
+            openSidebarBtn.addEventListener("click", openSidebar);
+            closeSidebarBtn.addEventListener("click", closeSidebar);
+            const navLinks = document.querySelectorAll("nav a");
+            navLinks.forEach((link) => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+            // Handle window resize
+            window.addEventListener("resize", () => {
+                if (window.innerWidth >= 1024) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
